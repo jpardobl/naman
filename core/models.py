@@ -360,7 +360,7 @@ class Iface(models.Model):
 class VLanConfig(models.Model):
 
     machine = models.ForeignKey(Machine)
-    vlans = models.ManyToManyField(VLan)
+    vlans = models.ManyToManyField(VLan, blank=True)
     needs_backup = models.BooleanField(default=True)
     needs_management = models.BooleanField(default=False)
 
