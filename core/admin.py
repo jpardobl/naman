@@ -7,6 +7,11 @@ class ExcludedIPRangeAdmin(admin.ModelAdmin):
 admin.site.register(ExcludedIPRange, ExcludedIPRangeAdmin)
 
 
+class VLanConfigAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(VLanConfig, VLanConfigAdmin)
+
+
 class ServiceAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Service, ServiceAdmin)
