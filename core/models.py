@@ -158,6 +158,9 @@ class VLan(models.Model):
     management_purpose = models.BooleanField(default=False)
     #general_purpose_service = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ("name", )
+
     class NoFreeIPError(Exception):
         pass
 
@@ -257,6 +260,10 @@ class Machine(models.Model):
     location = models.CharField(max_length=50, null=True, blank=True)
     dmz_located = models.BooleanField(default=False)
     #close_to = models.ForeignKey(Machine)
+
+    class Meta:
+        ordering = ("hostname",)
+
 
     def initialize_hostname(self, ):
         hn = u"%s%s%s%s" % (
