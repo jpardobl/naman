@@ -57,11 +57,13 @@ def add_machine(project, dns_zone, env, role, os, mtype, virtual=True, dmz_locat
     return m
 
 
-def create_iface_creation_request(user, machine, vlan):
+def create_iface_creation_request(user, machine, vlan, ip=None):
     requestfactory = RequestFactory()
     data = simplejson.dumps({
         "vlan": reverse("vlan-detail", args=[vlan.pk, ]),
+        "ip": ip,
         "machines": [reverse("machine-detail", args=[machine["id"], ], ), ],
+
     })
     request = requestfactory.post(
         reverse("iface-list"),
@@ -237,9 +239,41 @@ class MachineTest(TestCase):
         except:
             self.user = add_superuser("raton", "r")
 
+    def test_find_ip_exclusion(self, ):
+        ExcludedIPRange.objects.all().delete()
+        eir = ExcludedIPRange(
+            first="172.21.229.1",
+            last="172.21.229.10",
+            vlan=self.vlan_patio,
+        )
+        eir.save()
+
+        self.assertEquals(
+            Iface.excluded_in_ranges("172.21.229.5"),
+            [eir, ],
+            "Not properly finding Excluded IP Ranges for IP 172.21.229.5, should: %s" % eir,
+        )
+
+        eir1 = ExcludedIPRange(
+            first="172.21.229.8",
+            last="172.21.229.12",
+            vlan=self.vlan_patio,
+        )
+        eir1.save()
+
+        self.assertEquals(
+            Iface.excluded_in_ranges("172.21.229.9"),
+            [eir, eir1, ],
+            "Not properly finding Excluded IP Ranges for IP 172.21.229.9, should: %s" % [eir, eir1, ],
+        )
+
+        self.assertEquals(
+            Iface.excluded_in_ranges("172.21.210.9"),
+            [],
+            "Not properly finding Excluded IP Ranges for IP 172.21.210.9, should None" % [eir, eir1, ],
+        )
 
     def test_excluded_ip_ranges(self, ):
-
 
         #create an ip range who's first IP is not suitable for the assigned vlan
         request = create_excluded_ip_range_request(
@@ -381,7 +415,7 @@ class MachineTest(TestCase):
         print data
 
     def test_interface_rest(self, ):
-        #regular iface creation
+        #regular iface creation with IP
         request = create_machine_creation_request(
             self.user,
             None,
@@ -396,7 +430,8 @@ class MachineTest(TestCase):
         request = create_iface_creation_request(
             self.user,
             machine,
-            self.vlan_man1)
+            self.vlan_man1,
+            "6.6.6.6",)
 
         response = IfaceViewSet.as_view({"post": "create"})(request)
         response.render()
@@ -404,9 +439,12 @@ class MachineTest(TestCase):
             201,
             response.status_code,
             "Not properly creating iface. (should: 201; does: %s) %s" %
-                (response.status_code, response.content))
+                  (response.status_code, response.content))
 
-
+        self.assertEquals(
+            simplejson.loads(response.content)["ip"],
+            "6.6.6.6",
+            "Not properly creating ifaces when IP is assigned by user")
 
         # creating the same vlan for the same machine, should create it
         request = create_iface_creation_request(
@@ -419,6 +457,42 @@ class MachineTest(TestCase):
             response.status_code,
             "Not properly creating second iface on same machine and vlan. (should: 201; does: %s): %s" %
                 (response.status_code, response.render().content))
+
+        #regular iface creation without IP
+        request = create_iface_creation_request(
+            self.user,
+            machine,
+            self.vlan_man1)
+
+        response = IfaceViewSet.as_view({"post": "create"})(request)
+        response.render()
+        self.assertEquals(
+            201,
+            response.status_code,
+            "Not properly creating iface. (should: 201; does: %s) %s" %
+                (response.status_code, response.content))
+
+    def test_find_vlan_for_ip(self, ):
+        VLan.objects.all().delete()
+        vlan_servicio = add_vlan(
+            "SERVICIO",
+            100,
+            "172.21.100.0",
+            "172.21.100.1",
+            24,
+        )
+
+        vlan = Iface.find_vlan("192.168.1.1")
+        self.assertIsNone(
+            vlan,
+            "Should return None because no 192.168.1.1 does not belong to any vlan, returned: %s" % vlan
+        )
+
+        self.assertEqual(
+            vlan_servicio,
+            Iface.find_vlan("172.21.100.3"),
+            "Should return %s as 172.21.100.3 belongs to it" % vlan_servicio
+        )
 
     def test_vlan_decision(self, ):
         #cleaning ifaces *******************************

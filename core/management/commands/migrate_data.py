@@ -16,11 +16,11 @@ class Command(BaseCommand):
         print args
         fo = open(args[0], "r")
 
-        dns_zone = DNSZone.objects.get(name="undefined")
-        environment = Environment.objects.get(code="unde")
-        role = Role.objects.get(code="unde")
-        os = OperatingSystem.objects.get(code="unde")
-        mtype = MType.objects.get(name="imported")
+   #     dns_zone = DNSZone.objects.get(name="undefined")
+   #     environment = Environment.objects.get(code="unde")
+   #     role = Role.objects.get(code="unde")
+   #     os = OperatingSystem.objects.get(code="unde")
+   #     mtype = MType.objects.get(name="imported")
         self.stdout.write("Aprovisionamos las vlanes")
         query = "select * from vlans"
         bahamas.execute(query)
@@ -28,7 +28,7 @@ class Command(BaseCommand):
             VLan.objects.get_or_create(
                 name=row[3],
                 mask=row[4],
-                ip=10,
+                ip=row[10],
                 tag=0,
                 gw=row[1],
             )
@@ -56,25 +56,23 @@ class Command(BaseCommand):
                     if row[0] in (None, ""):
                         continue
                     print "metemos la maquina: %s" % row[0]
-                    m = Machine.objects.get_or_create(
-                        hostname=row[0])
-                    print "metemos las datos de la maquina"
-                    m = m[0]
-                    m.dns_zone = dns_zone
-                    m.role = role
-                    m.operating_system = os
-                    m.mtype = mtype
-                    m.environment = environment
-                    m.location = location
-                    m.save()
+                    try:
+                        m = Machine.objects.get(hostname=row[0])
+                    except Machine.DoesNotExist:
+                        Machine(hostname=row[0].lower()).save()
+
+
         fo.seek(0)
         self.stdout.write("Aprovisionamos las interfaces")
         for table in fo.readlines():
             hay_nat = True
             table = table.replace("\n", "")
             self.stdout.write("Trabajamos con la tabla: %s" % table)
-
-            vlan = VLan.objects.get(name=table)
+            try:
+                vlan = VLan.objects.get(name=table)
+            except VLan.DoesNotExist:
+                self.stderr.write("El fichero de tablas muestra la tabla %s, pero no existe" % table )
+                continue
 
             query = "SELECT address, systemName, comments, nat FROM %s where status= 'Used'" % table
 
@@ -92,14 +90,14 @@ class Command(BaseCommand):
             for iface in redip.fetchall():
                 machine = Machine.objects.get(hostname=iface[1])
                 nat = row[3] if hay_nat else None
-                Iface(
+                niface = Iface(
                     name="migrated",
                     vlan=vlan,
                     ip=iface[0],
-                    machine=machine,
                     comments=iface[2],
                     nat=nat)
-
+                niface.save()
+                niface.machines.add(machine)
 
         fo.close()
 

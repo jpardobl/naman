@@ -27,6 +27,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 urlpatterns = patterns("core.views",
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^', include(router.urls)),
+    url(r'^ipam/', include("web.urls")),
     url(r'^admin/', include(admin.site.urls)),
 )
 

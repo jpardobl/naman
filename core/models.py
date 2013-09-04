@@ -5,6 +5,8 @@ import ipaddr
 import logging
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+import simplejson
+
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -82,8 +84,12 @@ class MType(models.Model):
 class Environment(models.Model):
     code = models.CharField(max_length=4, blank=True)
     description = models.TextField()
-    backup_vlans = models.ManyToManyField('VLan')
-    service_vlans = models.ManyToManyField('VLan', related_name='environments')
+    backup_vlans = models.ManyToManyField('VLan', null=True, blank=True)
+    service_vlans = models.ManyToManyField(
+        'VLan',
+        related_name='environments',
+        null=True,
+        blank=True)
 
     def __unicode__(self, ):
         return u"%s" % self.description
@@ -94,7 +100,9 @@ class Role(CICaracteristic):
 
 
 class OperatingSystem(CICaracteristic):
-    pass
+    def __unicode__(self, ):
+        return u"%s" % self.description
+
 
 
 class ExcludedIPRange(models.Model):
@@ -129,14 +137,11 @@ class ExcludedIPRange(models.Model):
             return True
         return False
 
-    def save(self, *args, **kwargs):
-
+    def pre_save(self, ):
         if not self.vlan.is_ip_valid(self.first):
             raise ipaddr.AddressValueError("First IP is not correct for vlan")
         if not self.vlan.is_ip_valid(self.last):
             raise ipaddr.AddressValueError("Last IP is not correct for vlan")
-
-        super(ExcludedIPRange, self).save(*args, **kwargs)
 
 
 class VLanManager(models.Manager):
@@ -179,6 +184,7 @@ class VLan(models.Model):
 
     def is_ip_valid(self, ip):
         """ Calculates if an IP belongs to the vlan addressing scope"""
+
         if not isinstance(ip, ipaddr.IPv4Address):
             ip = ipaddr.IPv4Address(ip)
         for nip in self.network.iterhosts():
@@ -188,26 +194,29 @@ class VLan(models.Model):
 
     @property
     def network(self, ):
-        return ipaddr.IPv4Network("%s/%s" % (self.ip, self.mask))
+        try:
+            return ipaddr.IPv4Network("%s/%s" % (self.ip, self.mask))
+        except Exception:
+            raise ValueError(
+                "VLan.network: Can't calculate vlan network due to vlan %s misconfiguration" % self.name)
+
 
     @property
     def has_free_ip(self, ):
         return True if self.get_ip() else False
 
     def get_ip(self, ):
-        """ searchs and returns a free IP, respects excluded ranges"""
+        """ searches and returns a free IP, respects excluded ranges"""
         eranges = self.excluded_ranges
         print "looking for an IP in scope: %s" % self.network
+
         for ip in self.network.iterhosts():
-            print "trying with IP %s" % ip
             try:
                 for erange in eranges.all():
                     if erange.in_range(ip):
                         raise ExcludedIPRange.ExcludedIPError
             except ExcludedIPRange.ExcludedIPError:
-                print "IP %s excluded" % ip
                 continue
-
             try:
                 Iface.objects.get(ip=str(ip))
             except ObjectDoesNotExist:
@@ -245,18 +254,21 @@ class Project(models.Model):
 
 
 class Machine(models.Model):
-    hostname = models.CharField(max_length=15, blank=True, unique=True)
-    dns_zone = models.ForeignKey(DNSZone)
-    environment = models.ForeignKey(Environment)
-    role = models.ForeignKey(Role)
-    operating_system = models.ForeignKey(OperatingSystem)
-    virtual = models.BooleanField(default=True)
+    hostname = models.CharField(max_length=15, blank=True, null=True)
+    dns_zone = models.ForeignKey(DNSZone, blank=True, null=True)
+    environment = models.ForeignKey(Environment, blank=True, null=True)
+    role = models.ForeignKey(Role, blank=True, null=True)
+    operating_system = models.ForeignKey(
+        OperatingSystem,
+        blank=True,
+        null=True)
+    virtual = models.BooleanField(default=False)
     project = models.ForeignKey(
         Project,
         related_name="machines",
         null=True,
         blank=True)
-    mtype = models.ForeignKey(MType)
+    mtype = models.ForeignKey(MType, null=True, blank=True)
     location = models.CharField(max_length=50, null=True, blank=True)
     dmz_located = models.BooleanField(default=False)
     #close_to = models.ForeignKey(Machine)
@@ -264,8 +276,13 @@ class Machine(models.Model):
     class Meta:
         ordering = ("hostname",)
 
-
     def initialize_hostname(self, ):
+        if self.role is None:
+            raise AttributeError("If no hostname is specified, role must be initialized")
+        if self.operating_system is None:
+            raise AttributeError("If no hostname is specified, operating system must be initialized")
+        if self.environment is None:
+            raise AttributeError("If no hostname is specified, environment must be initialized")
         hn = u"%s%s%s%s" % (
             self.role.code,
             self.project.code if self.project is not None else "",
@@ -281,12 +298,16 @@ class Machine(models.Model):
 
     def save(self, *args, **kwargs):
         new = False
-
+        print "save hostbname: %s" % self.hostname
         with transaction.commit_on_success():
             if self.pk is None:
                 new = True
-                if self.mtype.auto_name and self.hostname in (None, ""):
+                if(self.mtype is not None and
+                    self.mtype.auto_name and
+                    self.hostname in (None, "")
+                    ):
                     self.initialize_hostname()
+
                 elif self.hostname is None or self.hostname == "":
                     raise AttributeError(
                         "Hostname missing for a non automatic one")
@@ -297,7 +318,7 @@ class Machine(models.Model):
 
     @property
     def fqdn(self, ):
-        return u"%s%s" % (self.hostname, self.dns_zone)
+        return u"%s.%s" % (self.hostname, self.dns_zone)
 
     def __unicode__(self, ):
         return u"%s" % self.fqdn
@@ -328,38 +349,67 @@ class Iface(models.Model):
         blank=True)
     comments = models.TextField(null=True, blank=True)
     mac = models.CharField(max_length=17, null=True, blank=True)
-    nat = models.IntegerField(null=True, blank=True)
+    nat = models.GenericIPAddressField(null=True, blank=True)
     virtual = models.BooleanField(default=False)
 
-    def __unicode__(self, ):
-        out = "machines: ["
-        for m in self.machines.all():
-            out = "%s %s, " % (out, m)
+    def to_json(self, ):
+        return simplejson.dumps({
+            "id": self.pk,
+            "ip": self.ip,
+            "vlan": self.vlan.pk,
+            })
 
-        return u"%s]; vlan: %s; ip: %s" % (
-            out,
-            self.vlan,
-            self.ip)
+    def __unicode__(self, ):
+        return u"%s" % self.ip
+
+    @staticmethod
+    def excluded_in_ranges(ip, vlan=None):
+
+        if vlan is None:
+            vlan = Iface.find_vlan(ip)
+            if vlan is None:
+                return []
+        exclusions = []
+        for eir in ExcludedIPRange.objects.filter(vlan=vlan):
+            if eir.in_range(ip):
+                exclusions.append(eir)
+        return exclusions
+
+    @staticmethod
+    def find_vlan(ip):
+        """
+        Looksup a valid vlan for the passed ip.
+        if no vlan found, return None
+        """
+        for vlan in VLan.objects.all():
+            try:
+                if vlan.is_ip_valid(ip):
+                    return vlan
+            except ValueError:
+                logger.error("VLan %s might be misconfigure, thus can't check if ip %s belongs to it" % (vlan, ip))
+                continue
+
+        return None
 
     def save(self, *args, **kwargs):
         new = False
         with transaction.commit_on_success():
             if self.pk is None:
                 new = True
-
-                self.ip = self.vlan.get_ip()
+                self.ip = self.vlan.get_ip() if self.ip in (None, "") else self.ip
                 self.gw = self.vlan.gw
 
             self.mask = self.vlan.mask
 
             super(Iface, self).save(*args, **kwargs)
+
             if new:
                 logger.info("New Iface created: %s" % self)
 
 
 class VLanConfig(models.Model):
 
-    machine = models.ForeignKey(Machine)
+    machine = models.ForeignKey(Machine, related_name="vlan_configs")
     vlans = models.ManyToManyField(VLan, blank=True, null=True)
     needs_backup = models.BooleanField(default=True)
     needs_management = models.BooleanField(default=False)
@@ -382,7 +432,6 @@ class VLanConfig(models.Model):
 
         if not self.machine.role.needs_backup_vlan:
             return
-
         for vlan in self.machine.environment.backup_vlans.all().order_by('name'):
             try:
                 self.append_vlan(vlan)
@@ -432,8 +481,11 @@ class VLanConfig(models.Model):
         # - project machines which project hasn't dedicated vlan
         # - no general purpose machines
         # - no production environment
-
+        if self.machine.environment.service_vlans.count() == 0:
+            raise AttributeError("Environment %s has no service vlan assigned" %
+                                 self.machine.environment)
         for vlan in self.machine.environment.service_vlans.all().order_by('name'):
+            print "trying service vlan with: %s" % vlan
             try:
                 self.append_vlan(vlan)
                 return
@@ -441,6 +493,11 @@ class VLanConfig(models.Model):
                 continue
 
         raise VLan.NoFreeIPError("Can't assign free IP for service vlan")
+
+    def pre_save(self, ):
+        if self.pk is None:
+            #deleting possible previous vlanconfigs, only if its new
+            VLanConfig.objects.filter(machine=self.machine).delete()
 
     def save(self, *args, **kwargs):
 
@@ -450,10 +507,14 @@ class VLanConfig(models.Model):
         if not new:
             return
 
-        #deleting possible previous vlans
-        [x.delete for x in self.vlans.all()]
+        if self.machine.role is None:
+            raise AttributeError("Machine %s has no role assigned" % self.machine)
+        if self.machine.environment is None:
+            raise AttributeError("Machine %s has no environment assigned" % self.machine)
+
         if self.needs_backup:
             self.add_backup_vlan()
         if self.needs_management:
             self.add_management_vlan()
         self.add_service_vlan()
+

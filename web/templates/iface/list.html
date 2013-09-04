@@ -1,0 +1,21 @@
+{%extends 'base.html'%}
+{%load forms%}
+{%block breadcrumb%}
+  <li><a href="{%url 'ifaces'%}">Iface list</a></li>
+{%endblock%}
+{%block middle_col%}
+<table class="table"><tr><th>IP</th><th>VLAN</th><th>Machines</th></tr>
+   {%for obj in listado%}
+      <tr>
+         <td><a href="{%url "iface" obj.pk%}">{{obj|truncatechars:25}}</a></td>
+         <td>{{obj.vlan}}</td>
+         <td>{{obj.machines.all|join:"-"}}</td>
+      </tr>
+   {%empty%}
+      <p class="lead text-warning">No results</p>
+   {%endfor%}
+</table>
+{%endblock%}
+{%block right_col%}{%paginator listado%}{%endblock%}
+{%block script%}{%endblock%}
+{%block document_ready%}{%endblock%}

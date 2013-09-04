@@ -11,6 +11,17 @@ ROLE_SA = 'SA'
 ENV_PROD = "PRO"
 # end constantes maestras
 
+from django.contrib import messages
+MESSAGE_TAGS = {
+    messages.DEBUG: 'debug',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'danger',
+    }
+
+
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
@@ -27,24 +38,24 @@ DATABASES = {
         'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',                      # Set to empty string for default.
     },
-  #  'redip': {
-  #      'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-  #      'NAME': 'redip',                      # Or path to database file if using sqlite3.
-  #      # The following settings are not used with sqlite3:
-  #      'USER': 'root',
-  #      'PASSWORD': 'wredp',
-  #      'HOST': '172.22.2.69',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-  #      'PORT': '',                      # Set to empty string for default.
-   #  },
-   # 'bahamas': {
-   #     'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-   #     'NAME': 'bahamas',                      # Or path to database file if using sqlite3.
-   #     # The following settings are not used with sqlite3:
-   #     'USER': 'inma',
-   #     'PASSWORD': 'serafin2011',
-   #     'HOST': '172.22.2.150',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-   #     'PORT': '',                      # Set to empty string for default.
-    #}
+#    'redip': {
+#        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+#        'NAME': 'redip',                      # Or path to database file if using sqlite3.
+        # The following settings are not used with sqlite3:
+#        'USER': 'root',
+#        'PASSWORD': 'wredp',
+#        'HOST': '172.22.2.69',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+#        'PORT': '',                      # Set to empty string for default.
+#     },
+#    'bahamas': {
+#        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+#        'NAME': 'bahamas',                      # Or path to database file if using sqlite3.
+#        # The following settings are not used with sqlite3:
+#        'USER': 'inma',
+#        'PASSWORD': 'serafin2011',
+#        'HOST': '172.22.2.150',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+#        'PORT': '',                      # Set to empty string for default.
+#    }
 }
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
@@ -139,6 +150,8 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+RESULTS_PER_PAGE = 24
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -148,6 +161,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'rest_framework',
     'core',
+    'web',
     "south",
     "django_extensions",
     # Uncomment the next line to enable the admin:
