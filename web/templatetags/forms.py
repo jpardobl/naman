@@ -24,9 +24,11 @@ def label(field, contents=None, attrs=None):
 
 
 @register.inclusion_tag("forms/bootstrap_field.html")
-def bootstrap_field(field, form_group_class=None, label_class=None, inner_div_class=None):
+def bootstrap_field(field, form_group_class=None, label_class=None, inner_div_class=None, input_field_class=None):
     widget = field.field.widget
     for_id = widget.id_for_label(widget.attrs.get('id') or field.auto_id)
+    if input_field_class is not None:
+        field.field.widget.attrs["class"] = input_field_class
     return {
         'field': field,
         'for_id': for_id,

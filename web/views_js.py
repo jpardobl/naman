@@ -9,3 +9,7 @@ def iface(request):
 
 def vlanconfig(request):
     return render(request, 'js/vlanconfig.js', content_type='application/javascript')
+
+
+def conflicting_ip(request):
+    return render(request, 'js/conflicting_ip.js', content_type='application/javascript')

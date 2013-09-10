@@ -6,8 +6,10 @@ from tools.views import paginator
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponseServerError
+from django.contrib.auth.decorators import user_passes_test
 
 
+@user_passes_test(lambda u: u.is_staff)
 def edit(request, id):
     try:
         obj = VLanConfig.objects.get(id=id)
@@ -31,9 +33,9 @@ def edit(request, id):
             response = render_to_response(
                 'vlanconfig/edit.html',
                 {
-                'form': form,
-                 "id": obj.pk,
-                 "obj": obj,
+                    'form': form,
+                    "id": obj.pk,
+                    "obj": obj,
                  },
                 context_instance=RequestContext(request))
             if wrong:
@@ -55,8 +57,8 @@ def edit(request, id):
     return render_to_response(
             'vlanconfig/edit.html',
             {
-            'form': form,
-             "id": obj.pk,
-             "obj": obj,
+                'form': form,
+                "id": obj.pk,
+                "obj": obj,
              },
             context_instance=RequestContext(request))

@@ -6,7 +6,7 @@ import logging
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 import simplejson
-
+import re
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -102,6 +102,15 @@ class Role(CICaracteristic):
 class OperatingSystem(CICaracteristic):
     def __unicode__(self, ):
         return u"%s" % self.description
+
+
+class ConflictingIP(models.Model):
+    ip = models.GenericIPAddressField(unique=True)
+    comments = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self, ):
+        return u"%s" % self.ip
 
 
 
@@ -206,15 +215,19 @@ class VLan(models.Model):
         return True if self.get_ip() else False
 
     def get_ip(self, ):
-        """ searches and returns a free IP, respects excluded ranges"""
+        """ searches and returns a free IP, respects excluded ranges and conflicting ips"""
         eranges = self.excluded_ranges
-        print "looking for an IP in scope: %s" % self.network
+        #print "looking for an IP in scope: %s" % self.network
 
         for ip in self.network.iterhosts():
+            #print "tryuing with: %s" % ip
             try:
                 for erange in eranges.all():
                     if erange.in_range(ip):
                         raise ExcludedIPRange.ExcludedIPError
+                #print "query: %s" % ConflictingIP.objects.filter(ip=ip).query
+                if ConflictingIP.objects.filter(ip=str(ip)).exists():
+                    continue
             except ExcludedIPRange.ExcludedIPError:
                 continue
             try:
@@ -333,8 +346,34 @@ class Service(models.Model):
     iface = models.ForeignKey("Iface")
 
 
-class Iface(models.Model):
+class IfaceManager(models.Manager):
 
+    def query_cmd(self, query_string):
+
+        m = re.match("^(.+)=(.+)$", query_string)
+        if not m:
+            #print "no hay coincidencia"
+            return None
+        try:
+            #print "Se ha encontrado: %s" % m.group(2)
+            queriable = {
+                "name": self.filter(name__iregex=m.group(2)),
+                "vlan": self.filter(vlan__name__iregex=m.group(2)),
+                "machines": self.filter(machines__hostname__iregex=m.group(2)),
+                "ip": self.filter(ip__iregex=m.group(2)),
+                "gw": self.filter(gw__iregex=m.group(2)),
+                "mask": self.filter(mask__iregex=m.group(2)),
+                "comments": self.filter(comments__iregex=m.group(2)),
+                "mac": self.filter(mac__iregex=m.group(2)),
+                "nat": self.filter(nat__iregex=m.group(2)), }
+            return queriable[m.group(1)]
+        except KeyError:
+            pass
+        return None
+
+
+class Iface(models.Model):
+    objects = IfaceManager()
     PREFIX = "eth"
 
     name = models.CharField(max_length=11, blank=True)

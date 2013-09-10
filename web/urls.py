@@ -14,11 +14,15 @@ urlpatterns = patterns("",
     url(r"^ifaces_by_machine/(\d+)?/?(\d+)?", "web.views_iface.list_by_machine", name="ifaces_by_machine"),
     url(r"^ifaces", "web.views_iface.listado", name="ifaces"),
 
+    url(r"^conflictingip/(\d+)?/?", "web.views_conflicting_ip.edit_modal", name="conflictingip_modal"),
 
     url(r"^vlanconfig/(\d+)?/?", "web.views_vlanconfig.edit", name="vlanconfig"),
 
+    url('^conflicting_ip.js$', 'web.views_js.conflicting_ip', name='conflicting_ip_js'),
     url('^iface.js$', 'web.views_js.iface', name='iface_js'),
     url('^vlanconfig.js$', 'web.views_js.vlanconfig', name='vlanconfig_js'),
 
+    url('^login/?$', 'django.contrib.auth.views.login', name='login'),
+    url('^logout/', 'django.contrib.auth.views.logout', {'next_page':'/ipam/login?next=/'}, name='logout'),
 )
 

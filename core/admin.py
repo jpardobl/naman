@@ -7,6 +7,11 @@ class ExcludedIPRangeAdmin(admin.ModelAdmin):
 admin.site.register(ExcludedIPRange, ExcludedIPRangeAdmin)
 
 
+class ConflictingIPAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(ConflictingIP, ConflictingIPAdmin)
+
+
 class VLanConfigAdmin(admin.ModelAdmin):
     pass
 admin.site.register(VLanConfig, VLanConfigAdmin)

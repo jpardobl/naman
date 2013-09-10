@@ -7,7 +7,10 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.contrib import messages
 from django.http import HttpResponseServerError
+from django.contrib.auth.decorators import user_passes_test
 
+
+@user_passes_test(lambda u: u.is_staff)
 def listado(request):
     #TODO change from icontains to iregex
     if "query_machine" in request.GET and request.GET["query_machine"] != "":
@@ -32,6 +35,7 @@ def listado(request):
         context_instance=RequestContext(request))
 
 
+@user_passes_test(lambda u: u.is_staff)
 def edit(request, id=None):
 #from django.forms.util import ErrorList
     if id is None:

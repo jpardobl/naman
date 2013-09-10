@@ -1,4 +1,4 @@
-from core.models import Iface, Machine
+from core.models import Iface, Machine, ConflictingIP
 from forms import IfaceForm, IfaceShortForm, IfaceByMachineForm
 from django.shortcuts import render_to_response, get_object_or_404, redirect, render
 from django.template import RequestContext
@@ -12,13 +12,16 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.utils.datastructures import MultiValueDictKeyError
 import re
+from django.contrib.auth.decorators import user_passes_test
 
 
+@user_passes_test(lambda u: u.is_staff)
 def delete(request, id):
     get_object_or_404(Iface, pk=id).delete()
     return HttpResponse("OK")
 
 
+@user_passes_test(lambda u: u.is_staff)
 def list_by_machine_json(request, machine_id, iface_id=None):
 
     if iface_id is None:
@@ -34,6 +37,7 @@ def list_by_machine_json(request, machine_id, iface_id=None):
         content_type='application/json')
 
 
+@user_passes_test(lambda u: u.is_staff)
 def list_by_machine(request, machine_id, iface_id=None):
 
     if iface_id is None:
@@ -50,18 +54,21 @@ def list_by_machine(request, machine_id, iface_id=None):
         context_instance=RequestContext(request))
 
 
+@user_passes_test(lambda u: u.is_staff)
 def listado(request):
     if "query_iface" in request.GET and request.GET["query_iface"] != "":
         query_sent = request.GET["query_iface"]
-        query = Iface.objects.filter(
-            Q(vlan__name__iregex=query_sent)
-            | Q(ip__iregex=query_sent)
-            |Q(mac__icontains=query_sent))
-        print query.query
+
+        query = Iface.objects.query_cmd(query_sent)
+        if query is None:
+            query = Iface.objects.filter(
+                Q(vlan__name__iregex=query_sent)
+                | Q(ip__iregex=query_sent)
+                |Q(mac__icontains=query_sent))
     else:
         query = Iface.objects.all()
         query_sent = None
-
+    print query.query
     listado = paginator(query, request)
 
     #if no iface is found, it shows advanced iface info
@@ -70,13 +77,19 @@ def listado(request):
             ipaddr.IPv4Address(query_sent)
             vlan = Iface.find_vlan(query_sent)
             eirs = Iface.excluded_in_ranges(ip=query_sent, vlan=vlan)
+            conflicts = ConflictingIP.objects.filter(ip=query_sent)
             return render_to_response(
                 "iface/adv_info.html",
-                {"vlan": vlan, "eirs": eirs, "ip": query_sent, },
+                {
+                    "vlan": vlan,
+                    "eirs": eirs,
+                    "ip": query_sent,
+                    "conflicts": conflicts,
+                },
                 context_instance=RequestContext(request)
             )
         except Exception:
-            print "no es una ip"
+            pass
 
     if len(listado.object_list) == 1:
         obj = listado.object_list[0]
@@ -87,6 +100,7 @@ def listado(request):
         context_instance=RequestContext(request))
 
 
+@user_passes_test(lambda u: u.is_staff)
 @csrf_exempt
 def edit_by_machine(request, id):
     print "id iface: %s" % id
@@ -139,6 +153,7 @@ def edit_by_machine(request, id):
     return response
 
 
+@user_passes_test(lambda u: u.is_staff)
 def edit_short_old(request, id):
     if id is None:
         obj = Iface()
@@ -169,6 +184,7 @@ def edit_short_old(request, id):
             context_instance=RequestContext(request))
 
 
+@user_passes_test(lambda u: u.is_staff)
 def edit(request, id=None):
 
     if id is None:

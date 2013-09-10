@@ -9,7 +9,7 @@
       <tr>
          <td><a href="{%url "iface" obj.pk%}">{{obj|truncatechars:25}}</a></td>
          <td>{{obj.vlan}}</td>
-         <td>{{obj.machines.all|join:"-"}}</td>
+         <td>{{obj.machines.all|join:" | "}}</td>
       </tr>
    {%empty%}
       <p class="lead text-warning">No results</p>

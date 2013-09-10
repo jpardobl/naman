@@ -1,4 +1,4 @@
-from core.models import Machine, Iface, VLanConfig
+from core.models import Machine, Iface, VLanConfig, ConflictingIP
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
 
@@ -17,6 +17,20 @@ class VLanConfigForm(ModelForm):
     class Meta:
         model = VLanConfig
         exclude = "vlans"
+
+
+class ConflictingIPForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ConflictingIPForm, self).__init__(*args, **kwargs)
+        for name, f in self.fields.items():
+           # f.widget.attrs = {'required': 'true'}
+
+            f.widget.attrs['placeholder'] = "%s ..." % f.label
+            if f.widget.__class__.__name__ != "CheckboxInput":
+                f.widget.attrs["class"] = "form-control"
+    class Meta:
+        model = ConflictingIP
+
 
 
 class MachineForm(ModelForm):
@@ -97,6 +111,7 @@ class IfaceByMachineForm(ModelForm):
 class IfaceForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(IfaceForm, self).__init__(*args, **kwargs)
+        self.fields["mask"].widget.attrs = {"disabled": ""}
         for name, f in self.fields.items():
            # f.widget.attrs = {'required': 'true'}
             f.widget.attrs['placeholder'] = "%s ..." % f.label

@@ -472,6 +472,17 @@ class MachineTest(TestCase):
             "Not properly creating iface. (should: 201; does: %s) %s" %
                 (response.status_code, response.content))
 
+    def test_conflicting_ip(self, ):
+        Iface.objects.all().delete()
+        ExcludedIPRange.objects.filter(vlan=self.vlan_man1).delete()
+        ConflictingIP(ip="172.21.200.1").save()
+        ip = self.vlan_man1.get_ip()
+        self.assertEquals(
+            ip,
+            "172.21.200.2",
+            "Not properly assigning an IP when there is a conflicting one. (should: 172.21.200.2, does: %s)" % ip
+        )
+
     def test_find_vlan_for_ip(self, ):
         VLan.objects.all().delete()
         vlan_servicio = add_vlan(

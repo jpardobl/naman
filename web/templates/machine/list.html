@@ -6,22 +6,19 @@
 
 
 {%block middle_col%}
-   <div class="row">
-      {%for obj in listado%}
-          <div class="col-md-3">
-            <div class="panel panel-default">
-               <div i="{{obj.pk}}" class="panel-body list-panel">
-                  <a href="{%url "machine" obj.pk%}">{{obj|truncatechars:25}}</a>
-               </div>
-            </div>
-          </div>
-      {%empty%}
-              <p class="lead text-warning">No results</p>
-      {%endfor%}
-   </div>
-  {%paginator listado%}
-{%endblock%}
+<table class="table"><tr><th>Machine</th><th>Environment</th><th>Role</th></tr>
+   {%for obj in listado%}
+      <tr><td>
+         <a href="{%url "machine" obj.pk%}">{{obj|truncatechars:25}}</a>
+      </td>
+      <td>{{obj.environment}}</td><td>{{obj.role}}</td></tr>
+   {%empty%}
+      <p class="lead text-warning">No results</p>
+   {%endfor%}
+</table>
 
+{%endblock%}
+{%block right_col%}{%paginator listado%}{%endblock%}
 {%block script%}{%endblock%}
 
 {%block document_ready%}

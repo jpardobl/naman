@@ -150,8 +150,8 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
-RESULTS_PER_PAGE = 24
-
+RESULTS_PER_PAGE = 12
+LOGIN_URL = '/ipam/login'
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -265,3 +265,29 @@ REST_FRAMEWORK = {
     ),
 }
 
+
+# Active directory auth ******************
+# settings.py
+# active directory authentication module
+AD_DNS_NAME = 'iberia.ib'	 # FQDN of your DC (using just the Domain Name to utilize all DC's)
+# If using non-SSL use these
+AD_LDAP_PORT=389
+AD_LDAP_URL='ldap://%s:%s' % (AD_DNS_NAME,AD_LDAP_PORT)
+# If using SSL use these:
+#AD_LDAP_PORT=636
+#AD_LDAP_URL='ldaps://%s:%s' % (AD_DNS_NAME,AD_LDAP_PORT)
+AD_SEARCH_DN = 'OU=People,dc=iberia,dc=ib'
+AD_NT4_DOMAIN = 'GRUPOIBERIA'
+AD_SEARCH_FIELDS = ['mail','givenName','sn','sAMAccountName','memberOf']
+AD_MEMBERSHIP_ADMIN = ['ArqServidor (Cambio)']	# this ad group gets superuser status in django
+# only members of this group can access
+AD_MEMBERSHIP_REQ = AD_MEMBERSHIP_ADMIN + ['DesRed (Lectura)', ]
+AD_CERT_FILE = '/tmp/cert'	# this is the certificate of the Certificate Authority issuing your DCs certificate
+AD_DEBUG=True #Set to false for prod, Slows things down ALOT
+AD_DEBUG_FILE='/tmp/ldap.debug'
+
+
+AUTHENTICATION_BACKENDS = (
+    'core.backend.ActiveDirectoryAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend' #Comment out to prevent authentication from DB
+)

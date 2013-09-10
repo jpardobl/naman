@@ -49,6 +49,9 @@
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/utils.js"></script>
     <script>{%block script%}{%endblock%}</script>
-    <script>{%block document_ready%}{%endblock%}</script>
+    <script>$(document).ready(function(){
+       load_dom_script_once("{%url 'conflicting_ip_js'%}")
+      {%block document_ready%}{%endblock%}
+      })</script>
   </body>
 </html>
