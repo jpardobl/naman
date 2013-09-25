@@ -337,7 +337,7 @@ class Machine(models.Model):
 
     @property
     def fqdn(self, ):
-        return u"%s.%s" % (self.hostname, self.dns_zone)
+        return u"%s%s" % (self.hostname, self.dns_zone)
 
     def __unicode__(self, ):
         return u"%s" % self.fqdn
