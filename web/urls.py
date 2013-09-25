@@ -2,7 +2,7 @@ from django.conf.urls import url, patterns, include
 
 
 urlpatterns = patterns("",
-    url(r"^home", "web.views.home", name="home"),
+
     url(r"^machine/(\d+)?/?", "web.views_machine.edit", name="machine"),
     url(r"^machines", "web.views_machine.listado", name="machines"),
 
@@ -23,6 +23,7 @@ urlpatterns = patterns("",
     url('^vlanconfig.js$', 'web.views_js.vlanconfig', name='vlanconfig_js'),
 
     url('^login/?$', 'django.contrib.auth.views.login', name='login'),
-    url('^logout/', 'django.contrib.auth.views.logout', {'next_page':'/ipam/login?next=/'}, name='logout'),
+    url('^logout/', 'django.contrib.auth.views.logout', {'next_page':'/login?next=/'}, name='logout'),
+    url(r"^", "web.views.home", name="home"),
 )
 

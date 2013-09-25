@@ -151,7 +151,7 @@ TEMPLATE_DIRS = (
 )
 
 RESULTS_PER_PAGE = 12
-LOGIN_URL = '/ipam/login'
+LOGIN_URL = '/login'
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -204,21 +204,21 @@ LOGGING = {
 #            'class': 'django.utils.log.AdminEmailHandler'
 #        },
 	'syslog':{
-      	  	'level':'DEBUG',
+      	  	'level':'WARN',
         	'class': 'logging.handlers.SysLogHandler',
         	'formatter': 'verbose',
         	'facility': SysLogHandler.LOG_LOCAL7,
         	'address': '/dev/log',
     	},
 	'syslog_request':{
-                'level':'DEBUG',
+                'level':'WARN',
                 'class': 'logging.handlers.SysLogHandler',
                 'formatter': 'request',
                 'facility': SysLogHandler.LOG_LOCAL7,
                 'address': '/dev/log',
         },
 	'syslog_db':{
-                'level':'DEBUG',
+                'level':'WARN',
                 'class': 'logging.handlers.SysLogHandler',
                 'formatter': 'db',
                 'facility': SysLogHandler.LOG_LOCAL7,
@@ -277,7 +277,7 @@ AD_LDAP_URL='ldap://%s:%s' % (AD_DNS_NAME,AD_LDAP_PORT)
 #AD_LDAP_PORT=636
 #AD_LDAP_URL='ldaps://%s:%s' % (AD_DNS_NAME,AD_LDAP_PORT)
 AD_SEARCH_DN = 'OU=People,dc=iberia,dc=ib'
-AD_NT4_DOMAIN = 'GRUPOIBERIA'
+AD_NT4_DOMAIN = 'iberia.es'
 AD_SEARCH_FIELDS = ['mail','givenName','sn','sAMAccountName','memberOf']
 AD_MEMBERSHIP_ADMIN = ['ArqServidor (Cambio)']	# this ad group gets superuser status in django
 # only members of this group can access
