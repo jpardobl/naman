@@ -7,6 +7,8 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 import simplejson
 import re
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -113,7 +115,6 @@ class ConflictingIP(models.Model):
         return u"%s" % self.ip
 
 
-
 class ExcludedIPRange(models.Model):
     first = models.IPAddressField()
     last = models.IPAddressField()
@@ -146,11 +147,16 @@ class ExcludedIPRange(models.Model):
             return True
         return False
 
-    def pre_save(self, ):
-        if not self.vlan.is_ip_valid(self.first):
+
+@receiver(pre_save, sender=ExcludedIPRange)
+def pre_save_excludediprange(sender, instance, **kwargs):
+
+        if not instance.vlan.is_ip_valid(instance.first):
             raise ipaddr.AddressValueError("First IP is not correct for vlan")
-        if not self.vlan.is_ip_valid(self.last):
+
+        if not instance.vlan.is_ip_valid(instance.last):
             raise ipaddr.AddressValueError("Last IP is not correct for vlan")
+
 
 
 class VLanManager(models.Manager):
@@ -533,11 +539,6 @@ class VLanConfig(models.Model):
 
         raise VLan.NoFreeIPError("Can't assign free IP for service vlan")
 
-    def pre_save(self, ):
-        if self.pk is None:
-            #deleting possible previous vlanconfigs, only if its new
-            VLanConfig.objects.filter(machine=self.machine).delete()
-
     def save(self, *args, **kwargs):
 
         new = (self.pk is None)
@@ -557,3 +558,9 @@ class VLanConfig(models.Model):
             self.add_management_vlan()
         self.add_service_vlan()
 
+
+@receiver(pre_save, sender=VLanConfig)
+def pre_save_vlanconfig(sender, instance, **kwargs):
+    if instance.pk is None:
+        #deleting possible previous vlanconfigs, only if its new
+        VLanConfig.objects.filter(machine=instance.machine).delete()
