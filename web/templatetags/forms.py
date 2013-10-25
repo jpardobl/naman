@@ -71,18 +71,12 @@ def paginator(paginator, objeto=None, urll=None):
 @register.inclusion_tag("forms/url_add_query_element.html")
 def url_add_query_element(url, key, value):
     """
-    appends query elements to an existing url
-    qes can be query string or dict
+    appends a query element to an existing url
     """
     u = urlparse(url)
     data = dict(parse_qsl(u.query))
-    print "query: %s" % u.query
-    print "data: %s" % data
+
     data[key] = value
-
-    print "%s?%s" % (u.path, urlencode(data))
-
-
 
     return {"url": "%s?%s" % (u.path, urlencode(data))}
 
