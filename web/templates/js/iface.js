@@ -5,6 +5,13 @@ function del_iface(id){
     });
 }
 
+function del_iface_form(id) {
+  send_url("{%url 'delete_iface' %}" + id, function(data){
+
+    window.location="{%url 'home'%}"
+    });
+}
+
 function edit_iface(id) {
   $("#glyphicon").fadeOut();$(".glyphicon").remove()
   send_url("{%url 'iface_by_machine' %}" + id, function(data){$("tr[i=" + id+"]").replaceWith(data);$("#niface_btn").fadeOut()});

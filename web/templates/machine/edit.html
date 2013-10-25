@@ -34,6 +34,7 @@
                     </div>
                     <div class="col-md-1">
                         <a href="javascript:void(0)" onclick="$('#fmachine').submit()" class="btn btn-primary">Accept</a>
+                        <a href="javascript:void(0)" onclick="del_machine_form({{obj.pk}})" class="btn btn-warning">Delete</a>
                     </div>
                 </div>
     {%if id != None%}
@@ -93,6 +94,7 @@
       }
     {%endblock%}
 {%block document_ready%}
+    load_dom_script_once("{%url 'machine_js'%}")
     load_dom_script_once("{%url 'iface_js'%}")
     load_dom_script_once("{%url 'vlanconfig_js'%}")
     {%if id != None%}

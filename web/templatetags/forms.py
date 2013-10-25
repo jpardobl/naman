@@ -1,4 +1,6 @@
 from django.template import Library
+from urlparse import urlparse, parse_qsl
+from urllib import urlencode
 
 
 register = Library()
@@ -44,6 +46,7 @@ def or_none(value):
         return "-"
     return value
 
+
 @register.filter
 def attrlist(attrs):
     attrs = dict(attrs)
@@ -56,13 +59,32 @@ attrlist.is_safe = True
 
 
 @register.inclusion_tag("forms/pagination.html")
-def paginator(paginator, objeto=None, url=None):
-
+def paginator(paginator, objeto=None, urll=None):
+    print "LA url es: %s" % urll
     return {
         "paginator": paginator,
-        "objeto": objeto if objeto != None else "P&aacute;gina",
-        "url": url if url != None else "",
+        "objeto": objeto if objeto not in (None, "") else "P&aacute;gina",
+        "urll": urll if urll != None else "",
         }
+
+
+@register.inclusion_tag("forms/url_add_query_element.html")
+def url_add_query_element(url, key, value):
+    """
+    appends query elements to an existing url
+    qes can be query string or dict
+    """
+    u = urlparse(url)
+    data = dict(parse_qsl(u.query))
+    print "query: %s" % u.query
+    print "data: %s" % data
+    data[key] = value
+
+    print "%s?%s" % (u.path, urlencode(data))
+
+
+
+    return {"url": "%s?%s" % (u.path, urlencode(data))}
 
 
 @register.inclusion_tag("forms/pagination_load.html")

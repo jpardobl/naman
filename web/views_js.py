@@ -13,3 +13,7 @@ def vlanconfig(request):
 
 def conflicting_ip(request):
     return render(request, 'js/conflicting_ip.js', content_type='application/javascript')
+
+
+def machine(request):
+    return render(request, 'js/machine.js', content_type='application/javascript')

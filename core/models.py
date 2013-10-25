@@ -158,7 +158,6 @@ def pre_save_excludediprange(sender, instance, **kwargs):
             raise ipaddr.AddressValueError("Last IP is not correct for vlan")
 
 
-
 class VLanManager(models.Manager):
 
     def get_from_ip(self, ip):
@@ -351,6 +350,9 @@ class Service(models.Model):
     description = models.TextField(null=True, blank=True)
     iface = models.ForeignKey("Iface")
 
+    def __unicode__(self, ):
+        return u"%s" % self.name
+
 
 class IfaceManager(models.Manager):
 
@@ -472,6 +474,7 @@ class VLanConfig(models.Model):
         if not vlan.has_free_ip:
             raise VLan.NoFreeIPError(vlan)
         self.vlans.add(vlan)
+        print "Vlan %s added" % vlan
 
     def add_backup_vlan(self, ):
 
@@ -557,6 +560,8 @@ class VLanConfig(models.Model):
         if self.needs_management:
             self.add_management_vlan()
         self.add_service_vlan()
+
+        print "Vlan config saved, vlans: %s" % self.vlans.all()
 
 
 @receiver(pre_save, sender=VLanConfig)

@@ -32,6 +32,7 @@
                     </div>
                     <div class="col-md-1">
                         <a href="javascript:void(0)" onclick="$('#fiface').submit()" class="btn btn-primary">Accept</a>
+                        <a href="javascript:void(0)" onclick="del_iface_form({{obj.pk}})" class="btn btn-warning">Delete</a>
                     </div>
                     </form>
                 </div>
@@ -44,4 +45,6 @@
 
 {%endblock%}
 {%block script%}{%endblock%}
-{%block document_ready%}{%endblock%}
+{%block document_ready%}
+    load_dom_script_once("{%url 'iface_js'%}")
+    {%endblock%}

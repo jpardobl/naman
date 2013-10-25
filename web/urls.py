@@ -2,9 +2,10 @@ from django.conf.urls import url, patterns, include
 
 
 urlpatterns = patterns("",
-
+    url(r"^machine/delete/(\d+)?/?", "web.views_machine.delete", name="delete_machine"),
     url(r"^machine/(\d+)?/?", "web.views_machine.edit", name="machine"),
     url(r"^machines", "web.views_machine.listado", name="machines"),
+
 
     url(r"^iface/delete/(\d+)?/?", "web.views_iface.delete", name="delete_iface"),
     #url(r"^iface_short/(\d+)?/?", "web.views_iface.edit_short", name="iface_short"),
@@ -20,6 +21,7 @@ urlpatterns = patterns("",
 
     url('^conflicting_ip.js$', 'web.views_js.conflicting_ip', name='conflicting_ip_js'),
     url('^iface.js$', 'web.views_js.iface', name='iface_js'),
+    url('^machine.js$', 'web.views_js.machine', name='machine_js'),
     url('^vlanconfig.js$', 'web.views_js.vlanconfig', name='vlanconfig_js'),
 
     url('^login/?$', 'django.contrib.auth.views.login', name='login'),

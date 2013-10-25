@@ -1,5 +1,5 @@
 # Django settings for naman project.
-
+import django.conf.global_settings as DEFAULT_SETTINGS
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -148,6 +148,11 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+)
+
+
+TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
+    "tools.views.content_procesor_referer",
 )
 
 RESULTS_PER_PAGE = 12

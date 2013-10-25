@@ -6,8 +6,14 @@ from tools.views import paginator
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.contrib import messages
-from django.http import HttpResponseServerError
+from django.http import HttpResponseServerError, HttpResponse
 from django.contrib.auth.decorators import user_passes_test
+
+
+@user_passes_test(lambda u: u.is_staff)
+def delete(request, id):
+    get_object_or_404(Machine, pk=id).delete()
+    return HttpResponse("OK")
 
 
 @user_passes_test(lambda u: u.is_staff)
