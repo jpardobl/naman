@@ -1,8 +1,8 @@
 from core.models import VLanConfig, Iface
-from forms import VLanConfigForm, IfaceByMachineForm
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from forms import VLanConfigForm#, IfaceByMachineForm
+from django.shortcuts import render_to_response, redirect#, get_object_or_404
 from django.template import RequestContext
-from tools.views import paginator
+#from tools.views import paginator
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.http import HttpResponseServerError
@@ -23,7 +23,7 @@ def edit(request, id):
             if form.is_valid():
                 obj = form.save(commit=False)
                 obj.save()
-                ifaces = []
+                #ifaces = []
                 for vlan in obj.vlans.all():
                     iface = Iface(vlan=vlan)
                     iface.save()
@@ -44,7 +44,7 @@ def edit(request, id):
         except Exception, ex:
             return HttpResponseServerError(ex)
         wrong = True
-        essages.error(request, "Wrong fields!")
+        messages.error(request, "Wrong fields!")
 
     else:
         print request.GET

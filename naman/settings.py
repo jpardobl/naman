@@ -282,17 +282,17 @@ AD_LDAP_URL='ldap://%s:%s' % (AD_DNS_NAME,AD_LDAP_PORT)
 #AD_LDAP_PORT=636
 #AD_LDAP_URL='ldaps://%s:%s' % (AD_DNS_NAME,AD_LDAP_PORT)
 AD_SEARCH_DN = 'OU=People,dc=iberia,dc=ib'
-AD_NT4_DOMAIN = 'iberia.es'
+AD_NT4_DOMAIN = 'iberia.ib'
 AD_SEARCH_FIELDS = ['mail','givenName','sn','sAMAccountName','memberOf']
 AD_MEMBERSHIP_ADMIN = ['ArqServidor (Cambio)']	# this ad group gets superuser status in django
 # only members of this group can access
-AD_MEMBERSHIP_REQ = AD_MEMBERSHIP_ADMIN + ['DesRed (Lectura)', ]
+AD_MEMBERSHIP_REQ = AD_MEMBERSHIP_ADMIN + ['DesRed (Lectura)', 'sistemas', ]
 AD_CERT_FILE = '/tmp/cert'	# this is the certificate of the Certificate Authority issuing your DCs certificate
 AD_DEBUG=True #Set to false for prod, Slows things down ALOT
 AD_DEBUG_FILE='/tmp/ldap.debug'
 
 
 AUTHENTICATION_BACKENDS = (
-    'core.backend.ActiveDirectoryAuthenticationBackend',
-    'django.contrib.auth.backends.ModelBackend' #Comment out to prevent authentication from DB
+     #'core.backend.ActiveDirectoryAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend', #Comment out to prevent authentication from DB
 )

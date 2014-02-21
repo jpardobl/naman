@@ -2,6 +2,16 @@ from django.contrib import admin
 from models import *
 
 
+class ConditionalAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Conditional, ConditionalAdmin)
+
+
+class RuleAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Rule, RuleAdmin)
+
+
 class ExcludedIPRangeAdmin(admin.ModelAdmin):
     pass
 admin.site.register(ExcludedIPRange, ExcludedIPRangeAdmin)

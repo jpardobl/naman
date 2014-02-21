@@ -1,12 +1,9 @@
 from django.db import models
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
-import ipaddr
-import logging
+import ipaddr, logging, simplejson, re
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-import simplejson
-import re
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
@@ -95,15 +92,23 @@ class Environment(models.Model):
 
     def __unicode__(self, ):
         return u"%s" % self.description
+    
+    def to_pypelib(self):
+        return str(self.code)
 
 
 class Role(CICaracteristic):
     needs_backup_vlan = models.BooleanField(default=False)
+    
+    def to_pypelib(self):
+        return u"%s" % self.code
 
 
 class OperatingSystem(CICaracteristic):
     def __unicode__(self, ):
         return u"%s" % self.description
+    
+    
 
 
 class ConflictingIP(models.Model):
@@ -269,6 +274,9 @@ class Project(models.Model):
         super(Project, self).save(*args, **kwargs)
         if new:
             logger.info("New Project created: %s" % self)
+            
+    def to_pypelib(self):
+        return str(self.code)
 
 
 class Machine(models.Model):
@@ -343,6 +351,11 @@ class Machine(models.Model):
 
     def has_iface_on_vlan(self, vlan):
         return self.interfaces.filter(vlan=vlan).exists()
+    
+    def get_vlanconfig(self):
+        if not self.vlan_configs.count():
+            self.vlan_configs.append(VLanConfig())
+        return self.vlan_configs.get() 
 
 
 class Service(models.Model):
@@ -433,7 +446,7 @@ class Iface(models.Model):
                 if vlan.is_ip_valid(ip):
                     return vlan
             except ValueError:
-                logger.error("VLan %s might be misconfigure, thus can't check if ip %s belongs to it" % (vlan, ip))
+                logger.error("VLan %s might be misconfigured, thus can't check if ip %s belongs to it" % (vlan, ip))
                 continue
 
         return None
@@ -442,8 +455,12 @@ class Iface(models.Model):
         new = False
         with transaction.commit_on_success():
             if self.pk is None:
-                new = True
+                new = True               
+                
                 self.ip = self.vlan.get_ip() if self.ip in (None, "") else self.ip
+                #If IP comes from user, check its valid for vlan
+                if not self.vlan.is_ip_valid(self.ip): raise AttributeError("Ip %s is not valid for vlan %s" % (self.ip, self.vlan))
+                                    
                 self.gw = self.vlan.gw
 
             self.mask = self.vlan.mask
@@ -454,6 +471,71 @@ class Iface(models.Model):
                 logger.info("New Iface created: %s" % self)
 
 
+COND_CHOICES = (
+    ('environment', 'Machine environment'),
+    ('project', 'Machine project'),
+    ('role_needs_backup', 'Machine role needs backup'),
+    ('dmz_located', 'Machine located in DMZ'),
+    ("needs_backup", "Machine needs backup"),
+    ('needs_management', "Machine needs management"),
+)
+
+
+class Conditional(models.Model):
+    statement1 = models.CharField(max_length=60,choices=COND_CHOICES, default="environment")
+    statement2 = models.CharField(max_length=60, null=True, blank=True)
+    #ocurred = models.BooleanField(default=False)
+    
+    def __unicode__(self):
+        return u"%s is %s" % (self.statement1, self.statement2)
+    
+    def to_pypelib(self):
+        return u"(%s = %s)" % (str(self.statement1), str(self.statement2))
+
+
+ACTION_CHOICES = (
+    ("assign_backup_vlan", "Assign backup vlan"),
+    ("assign_management_vlan", "Assign management vlan"),
+    ("assign_dmz_based_on_project", "Assign DMZ based on project"),
+    ("assign_service_vlan_based_on_project", "Assign service vlan based on project"),
+    ("assign_general_purpose_service_vlan", "Assign general purpose vlan"),
+)
+
+class Rule(models.Model):
+
+    table = models.CharField(max_length=30)
+    conditionals = models.ManyToManyField(Conditional, null=True, blank=True)
+    #conditionals = models.CharField(max_length=65, choices=COND_CHOICES)
+    action = models.CharField(max_length=65, choices=ACTION_CHOICES, null=True, blank=True)
+    active = models.BooleanField(default=True)    
+    terminal = models.BooleanField(default=False)
+    
+    def __unicode__(self, ):
+        return "[%s] conditionals: %s; action: %s" % (
+            self.active,
+
+            self.conditionals.all(),
+            self.action,
+        )
+
+    def to_pypelib(self, ):
+        
+        conds = self.conditionals.all()
+        
+        out = "if "
+                
+        if conds.count():
+            out = "%s (" % out
+            for c in conds:
+                out = "%s %s && " % (out, c.to_pypelib())
+                
+            out = re.sub("&&\s$", ")", out)
+        print out
+        #out = re.sub("&&$", "", out)
+        if conds.count() == 0: out = "%s 1 = 1 " % out
+        
+        return "%s then accept %s do %s" % (out, "" if self.terminal else "nonterminal", self.action)
+    
 class VLanConfig(models.Model):
 
     machine = models.ForeignKey(Machine, related_name="vlan_configs")
@@ -474,9 +556,9 @@ class VLanConfig(models.Model):
         if not vlan.has_free_ip:
             raise VLan.NoFreeIPError(vlan)
         self.vlans.add(vlan)
-        print "Vlan %s added" % vlan
+        logging.debug("Vlan %s added" % vlan)
 
-    def add_backup_vlan(self, ):
+    def add_backup_vlan_old(self, ):
 
         if not self.machine.role.needs_backup_vlan:
             return
@@ -488,7 +570,7 @@ class VLanConfig(models.Model):
                 continue
         raise VLan.NoFreeIPError("No free IPs at any backup vlan")
 
-    def add_management_vlan(self, ):
+    def add_management_vlan_old(self, ):
         man_vlans = VLan.objects.filter(management_purpose=True)
         if man_vlans.count() == 0:
             raise ImproperlyConfigured("Missing management vlans")
@@ -502,7 +584,7 @@ class VLanConfig(models.Model):
 
         raise VLan.NoFreeIPError("No free IPs at any management vlan")
 
-    def add_service_vlan(self, ):
+    def add_service_vlan_old(self, ):
 
         project = self.machine.project
 
@@ -533,7 +615,7 @@ class VLanConfig(models.Model):
             raise AttributeError("Environment %s has no service vlan assigned" %
                                  self.machine.environment)
         for vlan in self.machine.environment.service_vlans.all().order_by('name'):
-            print "trying service vlan with: %s" % vlan
+            logging.debug("trying service vlan with: %s" % vlan)
             try:
                 self.append_vlan(vlan)
                 return
@@ -549,19 +631,37 @@ class VLanConfig(models.Model):
         super(VLanConfig, self).save(*args, **kwargs)
         if not new:
             return
-
+        from mappings import get_mappings
+        from pypelib.RuleTable import RuleTable
+        from django.conf import settings
         if self.machine.role is None:
             raise AttributeError("Machine %s has no role assigned" % self.machine)
         if self.machine.environment is None:
             raise AttributeError("Machine %s has no environment assigned" % self.machine)
 
-        if self.needs_backup:
-            self.add_backup_vlan()
-        if self.needs_management:
-            self.add_management_vlan()
-        self.add_service_vlan()
+        table = RuleTable(
+            "Backup, service and management",
+            get_mappings(),
+            "RegexParser",
+            #rawfile,
+            "RAWFile",
+            None)
 
-        print "Vlan config saved, vlans: %s" % self.vlans.all()
+        table.setPolicy(False)
+        for rule in Rule.objects.filter(active=True).order_by("pk"):
+            table.addRule(rule.to_pypelib())
+            
+        logging.debug(table.dump())
+        
+        try:
+            table.evaluate(self.machine)
+            logging.debug("Ha evaluado a True")
+        except Exception, ex:
+            import traceback
+            print "Ha evaluado a False: %s" % traceback.format_exc()
+            logging.debug("Table evaluated False")
+            pass
+        logging.debug("Vlan config saved, vlans: %s" % self.vlans.all())
 
 
 @receiver(pre_save, sender=VLanConfig)

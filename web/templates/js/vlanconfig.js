@@ -15,15 +15,16 @@ function show_vconfig_form() {
 function save_vlanc(){
 
     init_progress();
+    data = {
+            machine: $("#id_machine").val(),
+            needs_backup: $("#id_needs_backup").is(':checked') ? "checked" : "",
+            needs_management: $("#id_needs_management").is(':checked')  ? "checked": "",
+            csrfmiddlewaretoken: $("#iface_div input[name=csrfmiddlewaretoken]").val()
+        }
     $.ajax({
         type: "POST",
         url: "{%url 'vlanconfig'%}",
-        data: {
-            machine: $("#id_machine").val(),
-            needs_backup: $("#id_needs_backup").attr('checked') ,
-            needs_management: $("#id_needs_management").attr('checked') ,
-            csrfmiddlewaretoken: $("#iface_div input[name=csrfmiddlewaretoken]").val()
-        },
+        data: data,
         beforeSend: function(){progress(30)},
         success: function(data)
         {
