@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -530,7 +531,7 @@ class Rule(models.Model):
                 out = "%s %s && " % (out, c.to_pypelib())
                 
             out = re.sub("&&\s$", ")", out)
-        print out
+        #print out
         #out = re.sub("&&$", "", out)
         if conds.count() == 0: out = "%s 1 = 1 " % out
         
@@ -556,112 +557,57 @@ class VLanConfig(models.Model):
         if not vlan.has_free_ip:
             raise VLan.NoFreeIPError(vlan)
         self.vlans.add(vlan)
-        logging.debug("Vlan %s added" % vlan)
+        print("Vlan %s added" % vlan)
 
-    def add_backup_vlan_old(self, ):
-
-        if not self.machine.role.needs_backup_vlan:
-            return
-        for vlan in self.machine.environment.backup_vlans.all().order_by('name'):
-            try:
-                self.append_vlan(vlan)
-                return
-            except VLan.NoFreeIPError:
-                continue
-        raise VLan.NoFreeIPError("No free IPs at any backup vlan")
-
-    def add_management_vlan_old(self, ):
-        man_vlans = VLan.objects.filter(management_purpose=True)
-        if man_vlans.count() == 0:
-            raise ImproperlyConfigured("Missing management vlans")
-
-        for vlan in man_vlans:
-            try:
-                self.append_vlan(vlan)
-                return
-            except VLan.NoFreeIPError:
-                continue
-
-        raise VLan.NoFreeIPError("No free IPs at any management vlan")
-
-    def add_service_vlan_old(self, ):
-
-        project = self.machine.project
-
-        #adding DMZ
-        if self.machine.dmz_located:
-
-            if project is None or project.dmz is None:
-                raise ImproperlyConfigured(
-                    "DMZ located machine must belong to a project which has dmz vlan assing")
-            self.append_vlan(project.dmz)
-            return
-
-        # adding campus service vlans for project machine when project
-        # has dedicated vlans and environment is production
-        if project is not None and self.machine.environment.code == settings.ENV_PROD:
-            for vlan in project.service_vlans.all().order_by('name'):
-                try:
-                    self.append_vlan(vlan)
-                    return
-                except VLan.NoFreeIPError:
-                    continue
-
-        # adding campus service vlans for: (or)
-        # - project machines which project hasn't dedicated vlan
-        # - no general purpose machines
-        # - no production environment
-        if self.machine.environment.service_vlans.count() == 0:
-            raise AttributeError("Environment %s has no service vlan assigned" %
-                                 self.machine.environment)
-        for vlan in self.machine.environment.service_vlans.all().order_by('name'):
-            logging.debug("trying service vlan with: %s" % vlan)
-            try:
-                self.append_vlan(vlan)
-                return
-            except VLan.NoFreeIPError:
-                continue
-
-        raise VLan.NoFreeIPError("Can't assign free IP for service vlan")
 
     def save(self, *args, **kwargs):
 
         new = (self.pk is None)
 
         super(VLanConfig, self).save(*args, **kwargs)
-        if not new:
-            return
-        from mappings import get_mappings
-        from pypelib.RuleTable import RuleTable
-        from django.conf import settings
-        if self.machine.role is None:
-            raise AttributeError("Machine %s has no role assigned" % self.machine)
-        if self.machine.environment is None:
-            raise AttributeError("Machine %s has no environment assigned" % self.machine)
 
-        table = RuleTable(
-            "Backup, service and management",
-            get_mappings(),
-            "RegexParser",
-            #rawfile,
-            "RAWFile",
-            None)
-
-        table.setPolicy(False)
-        for rule in Rule.objects.filter(active=True).order_by("pk"):
-            table.addRule(rule.to_pypelib())
-            
-        logging.debug(table.dump())
         
-        try:
-            table.evaluate(self.machine)
-            logging.debug("Ha evaluado a True")
-        except Exception, ex:
-            import traceback
-            print "Ha evaluado a False: %s" % traceback.format_exc()
-            logging.debug("Table evaluated False")
-            pass
-        logging.debug("Vlan config saved, vlans: %s" % self.vlans.all())
+        
+        
+            
+@receiver(post_save, sender=VLanConfig)
+def post_save_vlanconfig(sender, instance, **kwargs):
+    from mappings import get_mappings
+    from pypelib.RuleTable import RuleTable
+    from django.conf import settings
+    
+    if instance.machine.role is None:
+        raise AttributeError("Machine %s has no role assigned" % instance.machine)
+    if instance.machine.environment is None:
+        raise AttributeError("Machine %s has no environment assigned" % instance.machine)
+
+    table = RuleTable(
+        "Backup, service and management",
+        get_mappings(),
+        "RegexParser",
+        #rawfile,
+        "RAWFile",
+        None)
+
+    table.setPolicy(False)
+    for rule in Rule.objects.filter(active=True).order_by("pk"):
+        table.addRule(rule.to_pypelib())
+        
+    logging.debug(table.dump())
+    
+    try:
+        table.evaluate(instance.machine)
+        logging.debug("Ha evaluado a True")
+    except Exception, ex:
+        import traceback
+        print "Ha evaluado a False: %s" % traceback.format_exc()
+        logging.debug("Table evaluated False")
+        pass
+    logging.debug("Vlan config saved, vlans: %s" % instance.vlans.all())
+    for vlan in instance.vlans.all():
+        iface = Iface(vlan=vlan)
+        iface.save()
+        iface.machines.add(instance.machine)
 
 
 @receiver(pre_save, sender=VLanConfig)

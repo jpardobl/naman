@@ -59,7 +59,8 @@ class MTypeSerializer(serializers.ModelSerializer):
 
 
 class MachineSerializer(serializers.HyperlinkedModelSerializer):
-
+    interfaces = serializers.HyperlinkedRelatedField(many=True, read_only=True,
+                                                 view_name='iface-detail')
     class Meta:
         model = Machine
         fields = (
@@ -71,6 +72,7 @@ class MachineSerializer(serializers.HyperlinkedModelSerializer):
             "dns_zone",
             "project",
             "mtype",
+            "interfaces",
             "id",)
 
 
