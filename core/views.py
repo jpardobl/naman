@@ -188,28 +188,44 @@ class IfaceDetail(APIView):
         try:
             return Iface.objects.get(pk=pk)
         except Iface.DoesNotExist:
-            raise Http404(
-                content=simplejson.dumps({"errors": ["Object not found", ]}),
-                content_type="application/json",
-                          )
+            raise Http404("Object not found")
 
     def get(self, request, pk, format=None):
-        machine = self.get_object(pk)
-        serializer = IfaceSerializer(machine)
-        return Response(serializer.data)
+        try:
+            machine = self.get_object(pk)
+            serializer = IfaceSerializer(machine)
+            return Response(serializer.data)
+        except Exception, ex:            
+                return HttpResponseBadRequest(
+                    content=simplejson.dumps({"errors": [str(ex), ]}),
+                    content_type="application/json",
+                )
+            
 
     def put(self, request, pk, format=None):
-        machine = self.get_object(pk)
-        serializer = IfaceSerializer(machine, data=request.DATA)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            machine = self.get_object(pk)
+            serializer = IfaceSerializer(machine, data=request.DATA)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception, ex:            
+                return HttpResponseBadRequest(
+                    content=simplejson.dumps({"errors": [str(ex), ]}),
+                    content_type="application/json",
+                )
 
     def delete(self, request, pk, format=None):
-        machine = self.get_object(pk)
-        machine.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            machine = self.get_object(pk)
+            machine.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception, ex:            
+                return HttpResponseBadRequest(
+                    content=simplejson.dumps({"errors": [str(ex), ]}),
+                    content_type="application/json",
+                )
     
 class ServiceViewSet(viewsets.ModelViewSet):
     """

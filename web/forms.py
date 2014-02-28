@@ -105,7 +105,7 @@ class IfaceByMachineForm(ModelForm):
 
     class Meta:
         model = Iface
-        fields = ("machines", "ip", "vlan", "mac", )
+        fields = ("machines", "ip", "dhcp", "vlan", "mac", )
 
 
 class IfaceForm(ModelForm):

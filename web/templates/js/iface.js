@@ -41,6 +41,7 @@ function save_iface(id) {
       "vlan": $("#id_vlan").val(),
       "ip": $("#id_ip").val(),
       "mac": $("#id_mac").val(),
+      "dhcp": $("#id_dhcp").is(":checked"),
       "machines": machine
     },
     beforeSend: function(){progress(30)},

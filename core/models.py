@@ -181,6 +181,7 @@ class VLan(models.Model):
     gw = models.IPAddressField()
     mask = models.IntegerField()
     management_purpose = models.BooleanField(default=False)
+    dhcp = models.BooleanField(default=True)
     #general_purpose_service = models.BooleanField(default=False)
 
     class Meta:
@@ -400,7 +401,7 @@ class Iface(models.Model):
 
     name = models.CharField(max_length=11, blank=True)
     vlan = models.ForeignKey(VLan)
-    ip = models.GenericIPAddressField(blank=True, unique=True)
+    ip = models.GenericIPAddressField(blank=True, unique=True, null=True)
     gw = models.GenericIPAddressField(blank=True, default="0.0.0.0")
     mask = models.IntegerField(blank=True)
     machines = models.ManyToManyField(
@@ -412,12 +413,14 @@ class Iface(models.Model):
     mac = models.CharField(max_length=17, null=True, blank=True)
     nat = models.GenericIPAddressField(null=True, blank=True)
     virtual = models.BooleanField(default=False)
+    dhcp = models.BooleanField(default=False)
 
     def to_json(self, ):
         return simplejson.dumps({
             "id": self.pk,
             "ip": self.ip,
             "vlan": self.vlan.pk,
+            "dhcp": self.dhcp,
             })
 
     def __unicode__(self, ):
@@ -456,13 +459,16 @@ class Iface(models.Model):
         new = False
         with transaction.commit_on_success():
             if self.pk is None:
-                new = True               
+                new = True
                 
-                self.ip = self.vlan.get_ip() if self.ip in (None, "") else self.ip
+                self.dhcp = self.vlan.dhcp               
+                
+                self.ip = self.vlan.get_ip() if self.ip in (None, "") and not self.dhcp else self.ip
                 #If IP comes from user, check its valid for vlan
-                if not self.vlan.is_ip_valid(self.ip): raise AttributeError("Ip %s is not valid for vlan %s" % (self.ip, self.vlan))
+                if not self.dhcp and not self.vlan.is_ip_valid(self.ip): raise AttributeError("Ip %s is not valid for vlan %s" % (self.ip, self.vlan))
                                     
                 self.gw = self.vlan.gw
+                
 
             self.mask = self.vlan.mask
 

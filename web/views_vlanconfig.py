@@ -43,7 +43,7 @@ def edit(request, id):
                 if wrong:
                     response.status_code = 400
                 return response
-            except Exception, ex:
+            except Exception, ex:                
                 return HttpResponseServerError(ex)
             wrong = True
             messages.error(request, "Wrong fields!")

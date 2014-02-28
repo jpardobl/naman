@@ -8,43 +8,22 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Conditional'
-        db.create_table(u'core_conditional', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('statement1', self.gf('django.db.models.fields.CharField')(default='environment', max_length=60)),
-            ('statement2', self.gf('django.db.models.fields.CharField')(max_length=60, null=True, blank=True)),
-        ))
-        db.send_create_signal(u'core', ['Conditional'])
+        # Adding field 'Iface.dhcp'
+        db.add_column(u'core_iface', 'dhcp',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
 
-        # Adding model 'Rule'
-        db.create_table(u'core_rule', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('table', self.gf('django.db.models.fields.CharField')(max_length=30)),
-            ('action', self.gf('django.db.models.fields.CharField')(max_length=65, null=True, blank=True)),
-            ('active', self.gf('django.db.models.fields.BooleanField')(default=True)),
-        ))
-        db.send_create_signal(u'core', ['Rule'])
 
-        # Adding M2M table for field conditionals on 'Rule'
-        m2m_table_name = db.shorten_name(u'core_rule_conditionals')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('rule', models.ForeignKey(orm[u'core.rule'], null=False)),
-            ('conditional', models.ForeignKey(orm[u'core.conditional'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['rule_id', 'conditional_id'])
-
+        # Changing field 'Iface.ip'
+        db.alter_column(u'core_iface', 'ip', self.gf('django.db.models.fields.GenericIPAddressField')(max_length=39, unique=True, null=True))
 
     def backwards(self, orm):
-        # Deleting model 'Conditional'
-        db.delete_table(u'core_conditional')
+        # Deleting field 'Iface.dhcp'
+        db.delete_column(u'core_iface', 'dhcp')
 
-        # Deleting model 'Rule'
-        db.delete_table(u'core_rule')
 
-        # Removing M2M table for field conditionals on 'Rule'
-        db.delete_table(db.shorten_name(u'core_rule_conditionals'))
-
+        # Changing field 'Iface.ip'
+        db.alter_column(u'core_iface', 'ip', self.gf('django.db.models.fields.GenericIPAddressField')(default=None, max_length=39, unique=True))
 
     models = {
         u'core.conditional': {
@@ -89,9 +68,10 @@ class Migration(SchemaMigration):
         u'core.iface': {
             'Meta': {'object_name': 'Iface'},
             'comments': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'dhcp': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'gw': ('django.db.models.fields.GenericIPAddressField', [], {'default': "'0.0.0.0'", 'max_length': '39', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'ip': ('django.db.models.fields.GenericIPAddressField', [], {'unique': 'True', 'max_length': '39', 'blank': 'True'}),
+            'ip': ('django.db.models.fields.GenericIPAddressField', [], {'max_length': '39', 'unique': 'True', 'null': 'True', 'blank': 'True'}),
             'mac': ('django.db.models.fields.CharField', [], {'max_length': '17', 'null': 'True', 'blank': 'True'}),
             'machines': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'interfaces'", 'null': 'True', 'symmetrical': 'False', 'to': u"orm['core.Machine']"}),
             'mask': ('django.db.models.fields.IntegerField', [], {'blank': 'True'}),
@@ -155,7 +135,8 @@ class Migration(SchemaMigration):
             'active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'conditionals': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['core.Conditional']", 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'table': ('django.db.models.fields.CharField', [], {'max_length': '30'})
+            'table': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
+            'terminal': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
         },
         u'core.service': {
             'Meta': {'object_name': 'Service'},
@@ -166,6 +147,7 @@ class Migration(SchemaMigration):
         },
         u'core.vlan': {
             'Meta': {'ordering': "('name',)", 'object_name': 'VLan'},
+            'dhcp': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'gw': ('django.db.models.fields.IPAddressField', [], {'max_length': '15'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'ip': ('django.db.models.fields.IPAddressField', [], {'max_length': '15'}),

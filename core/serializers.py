@@ -90,7 +90,8 @@ class IfaceSerializer(serializers.HyperlinkedModelSerializer):
             'id',
             'virtual',
             'nat',
-            'mac',)
+            'mac',
+            "dhcp",)
 
 
 class VLanConfigSerializer(serializers.HyperlinkedModelSerializer):
