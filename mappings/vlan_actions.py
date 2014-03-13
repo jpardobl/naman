@@ -6,7 +6,7 @@ import logging
 def assign_provisioning_vlan(machine):
   
     print("Entering assign_provisioning_vlan")
-    prov_vlans = VLan.objects.filter(management_purpose=True)
+    prov_vlans = VLan.objects.filter(provisioning_purpose=True)
     if prov_vlans.count() == 0:
         raise ImproperlyConfigured("Missing provisioning vlans")
 
