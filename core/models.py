@@ -504,6 +504,7 @@ class Conditional(models.Model):
 ACTION_CHOICES = (
     ("assign_backup_vlan", "Assign backup vlan"),
     ("assign_management_vlan", "Assign management vlan"),
+    ("assign_provisioning_vlan", "Assign provisioning vlan"),
     ("assign_dmz_based_on_project", "Assign DMZ based on project"),
     ("assign_service_vlan_based_on_project", "Assign service vlan based on project"),
     ("assign_general_purpose_service_vlan", "Assign general purpose vlan"),

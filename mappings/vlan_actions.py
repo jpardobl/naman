@@ -2,6 +2,24 @@ from core.models import VLan
 from django.core.exceptions import ImproperlyConfigured
 import logging
 
+
+def assign_provisioning_vlan(machine):
+  
+    print("Entering assign_provisioning_vlan")
+    prov_vlans = VLan.objects.filter(management_purpose=True)
+    if prov_vlans.count() == 0:
+        raise ImproperlyConfigured("Missing provisioning vlans")
+
+    for vlan in prov_vlans:
+        try:
+            machine.get_vlanconfig().append_vlan(vlan)
+            return
+        except VLan.NoFreeIPError:
+            continue
+
+    raise VLan.NoFreeIPError("No free IPs at any provisioning vlan")
+    
+  
 def assign_backup_vlan(machine):
     #logging.basicConfig(level=logging.DEBUG)
     print("Entering assign_backup_vlan")
@@ -64,6 +82,7 @@ def assign_general_purpose_service_vlan(machine):
 mappings = [
     assign_backup_vlan,
     assign_management_vlan,
+    assign_provisioning_vlan,
     assign_dmz_based_on_project,
     assign_service_vlan_based_on_project,
     assign_general_purpose_service_vlan,
