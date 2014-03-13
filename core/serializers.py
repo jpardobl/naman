@@ -24,7 +24,7 @@ class DNSZoneSerializer(serializers.HyperlinkedModelSerializer):
 class VLanSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = VLan
-        fields = ('name', 'ip', 'gw', 'mask', 'tag', 'id', )
+        fields = ('name', 'ip', 'gw', 'mask', 'tag', 'id', 'management_purpose', 'provisioning_purpose', )
         lookup_field = "code"
 
 

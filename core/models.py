@@ -181,6 +181,7 @@ class VLan(models.Model):
     gw = models.IPAddressField()
     mask = models.IntegerField()
     management_purpose = models.BooleanField(default=False)
+    provisioning_purpose = models.BooleanField(default=False)
     dhcp = models.BooleanField(default=True)
     #general_purpose_service = models.BooleanField(default=False)
 
