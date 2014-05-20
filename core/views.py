@@ -107,7 +107,7 @@ class MachineList(APIView):
     List all snippets, or create a new snippet.
     """
     def get(self, request, format=None):
-        machines = Machine.objects.all()[:3]
+        machines = Machine.objects.all()
         serializer = MachineSerializer(machines, many=True)
         return Response(serializer.data)
     @csrf_exempt
