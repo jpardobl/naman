@@ -324,6 +324,17 @@ class Machine(models.Model):
                 hn,
                 HostnameSequence.objects.get_or_create(prefix=hn)[0].incr)
         self.hostname = hn
+        self.initialize_dnszone()
+
+    def initialize_dnszone(self):
+
+        if self.operating_system.code == "w":
+            self.dns_zone = DNSZone.objects.get(name=".iberia.ib")
+        else:
+            self.dns_zone = DNSZone.objects.get(name=".ib")
+
+        if self.environment == "lab":
+            self.dns_zone = DNSZone.objects.get(name=".lab")
 
     def save(self, *args, **kwargs):
         new = False

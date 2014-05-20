@@ -73,7 +73,8 @@ class MachineSerializer(serializers.HyperlinkedModelSerializer):
             "project",
             "mtype",
             "interfaces",
-            "id",)
+            "id",
+            "fqdn",)
 
 
 class IfaceSerializer(serializers.HyperlinkedModelSerializer):
