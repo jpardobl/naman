@@ -324,7 +324,6 @@ class Machine(models.Model):
                 hn,
                 HostnameSequence.objects.get_or_create(prefix=hn)[0].incr)
         self.hostname = hn
-        self.initialize_dnszone()
 
     def initialize_dnszone(self):
 
@@ -351,6 +350,7 @@ class Machine(models.Model):
                 elif self.hostname is None or self.hostname == "":
                     raise AttributeError(
                         "Hostname missing for a non automatic one")
+                self.initialize_dnszone()
 
             super(Machine, self).save(*args, **kwargs)
             if new:
