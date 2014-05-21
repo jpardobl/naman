@@ -61,6 +61,8 @@ class MTypeSerializer(serializers.ModelSerializer):
 class MachineSerializer(serializers.HyperlinkedModelSerializer):
     interfaces = serializers.HyperlinkedRelatedField(many=True, read_only=True,
                                                  view_name='iface-detail')
+
+    fqdn = serializers.Field(source="fqdn")
     class Meta:
         model = Machine
         fields = (

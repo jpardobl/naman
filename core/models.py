@@ -333,7 +333,7 @@ class Machine(models.Model):
         else:
             self.dns_zone = DNSZone.objects.get(name=".ib")
 
-        if self.environment == "lab":
+        if self.environment.code == "lab":
             self.dns_zone = DNSZone.objects.get(name=".lab")
 
     def save(self, *args, **kwargs):
