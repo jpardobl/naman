@@ -1,14 +1,20 @@
+import logging
+import re
+
 from django.db import models
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
-import ipaddr, logging, simplejson, re
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
+import ipaddr
+import simplejson
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
+
+
 # Get an instance of a logger
+from naman.pypelib import RuleTable
+
 logger = logging.getLogger(__name__)
 
 
@@ -591,10 +597,8 @@ class VLanConfig(models.Model):
             
 @receiver(post_save, sender=VLanConfig)
 def post_save_vlanconfig(sender, instance, **kwargs):
-    from mappings import get_mappings
-    from pypelib.RuleTable import RuleTable
-    from django.conf import settings
-    
+    from naman.mappings import get_mappings
+
     if instance.machine.role is None:
         raise AttributeError("Machine %s has no role assigned" % instance.machine)
     if instance.machine.environment is None:

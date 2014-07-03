@@ -1,10 +1,8 @@
-import os
-import sys
-import time
-
-sys.path.append("../../") 
+sys.path.append("../../")
 import re
+
 from pyparsing import nestedExpr
+
 
 '''
         @author: msune,cbermudo,omoya
@@ -13,8 +11,8 @@ from pyparsing import nestedExpr
 	RegexParser class
 '''
 
-from pypelib.Rule import *
-from pypelib.Condition import *
+from naman.pypelib.Rule import *
+from naman.pypelib.Condition import *
 
 
 

@@ -1,6 +1,5 @@
 from django.conf.urls import url, patterns, include
-from core.views import *
-from rest_framework import viewsets, routers
+from naman.core.views import *
 
 from django.contrib import admin
 admin.autodiscover()
@@ -21,8 +20,6 @@ router.register(r'excluded_ip_ranges', ExcludedIPRangeViewSet)
 router.register(r'services', ServiceViewSet)
 #router.register(r'vlan_config', VLanConfigViewSet)
 
-
-from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = patterns("core.views",
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),

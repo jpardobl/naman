@@ -1,4 +1,4 @@
-from core.models import VLanConfig, Iface
+from naman.core.models import VLanConfig
 from forms import VLanConfigForm#, IfaceByMachineForm
 from django.shortcuts import render_to_response, redirect#, get_object_or_404
 from django.template import RequestContext

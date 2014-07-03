@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.core.management.base import BaseCommand, CommandError
-from core.models import *
+from naman.core.models import *
 from django.db import connections, DatabaseError
 redip = connections['redip'].cursor()
 bahamas = connections['bahamas'].cursor()

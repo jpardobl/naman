@@ -1,9 +1,9 @@
-from naman.mappings import get_mappings
-from pypelib.RuleTable import RuleTable
-from naman.core.models import Rule
 import logging
-from django.conf import settings
 
+from naman.mappings import get_mappings
+from naman.core.models import Rule
+from django.conf import settings
+from naman.pypelib import RuleTable
 
 
 def evaluate(machine):

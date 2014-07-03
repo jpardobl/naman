@@ -1,12 +1,11 @@
-from core.models import Machine
+from naman.core.models import Machine
 from forms import MachineForm
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
-from tools.views import paginator
+from naman.tools.views import paginator
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.contrib import messages
-from django.http import HttpResponseServerError, HttpResponse
 from django.contrib.auth.decorators import user_passes_test
 
 

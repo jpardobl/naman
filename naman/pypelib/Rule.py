@@ -1,9 +1,6 @@
-import os
-import sys
-import time
 import exceptions
-import uuid
-import logging
+from naman.pypelib import Condition
+from naman.pypelib.utils import Logger
 
 '''
         @author: msune,lbergesio,omoya,CarolinaFernandez
@@ -13,9 +10,6 @@ import logging
 	Encapsulates logic of a simple Rule	 
 '''
 
-from pypelib.Condition import Condition
-from pypelib.persistence.PersistenceEngine import PersistenceEngine
-from pypelib.utils.Logger import Logger
 
 class TerminalMatch(exceptions.Exception):
 	value = None

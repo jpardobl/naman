@@ -1,6 +1,5 @@
-from core.models import VLan
+from naman.core.models import VLan
 from django.core.exceptions import ImproperlyConfigured
-import logging
 
 
 def assign_provisioning_vlan(machine):

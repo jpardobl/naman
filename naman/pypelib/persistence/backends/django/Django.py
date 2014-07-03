@@ -1,9 +1,3 @@
-import os
-import sys
-import time
-import uuid
-import logging
-
 '''
         @author: msune,lbergesio,cbermudo,omoya,CarolinaFernandez
 	@organization: i2CAT, OFELIA FP7
@@ -11,16 +5,14 @@ import logging
 	Django backend driver
 	Implementes django model-based backend
 '''
-from .RuleModel import PolicyRuleModel
-from .RuleTableModel import PolicyRuleTableModel
-from pypelib.parsing.ParseEngine import ParseEngine
-from pypelib.Rule import Rule
-from pypelib.RuleTable import*
-from pypelib.resolver.Resolver import Resolver
-from pypelib.utils.Logger import Logger
+from .naman.pypelib.persistence.backends.django.RuleModel import PolicyRuleModel
+from .naman.pypelib.persistence.backends.django.RuleTableModel import PolicyRuleTableModel
+from naman.pypelib.RuleTable import*
+from naman.pypelib.resolver import Resolver
+from naman.pypelib.utils import Logger
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import MultipleObjectsReturned
-from pypelib.utils.Exceptions import *
+from naman.pypelib.utils.Exceptions import *
 
 
 #XXX: Django is required to run this driver

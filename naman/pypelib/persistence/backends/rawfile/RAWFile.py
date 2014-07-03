@@ -1,13 +1,11 @@
-import os
-import sys
-import time
-import copy
 try:
    import cPickle as pickle
 except:
    import pickle
-from threading import Thread, Lock
-from pypelib.resolver.Resolver import Resolver
+from threading import Lock
+
+from naman.pypelib.resolver.Resolver import Resolver
+
 
 '''
         @author: lbergesio,omoya,cbermudo

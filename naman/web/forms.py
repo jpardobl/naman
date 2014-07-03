@@ -1,6 +1,5 @@
-from core.models import Machine, Iface, VLanConfig, ConflictingIP
+from naman.core.models import Machine, Iface, VLanConfig, ConflictingIP
 from django.forms import ModelForm
-from django.forms.widgets import HiddenInput
 
 
 class VLanConfigForm(ModelForm):

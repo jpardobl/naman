@@ -165,7 +165,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'core',
+    'naman.core',
     'web',
     "south",
     "django_extensions",

@@ -1,5 +1,5 @@
 from django.shortcuts import render_to_response, get_object_or_404
-from core.models import ConflictingIP
+from naman.core.models import ConflictingIP
 from django.http import HttpResponse, HttpResponseServerError
 from django.template import RequestContext
 from forms import ConflictingIPForm

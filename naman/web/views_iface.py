@@ -1,8 +1,8 @@
-from core.models import Iface, Machine, ConflictingIP
+from naman.core.models import Iface, ConflictingIP
 from forms import IfaceForm, IfaceShortForm, IfaceByMachineForm
 from django.shortcuts import render_to_response, get_object_or_404, redirect, render
 from django.template import RequestContext
-from tools.views import paginator
+from naman.tools.views import paginator
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseServerError
@@ -11,7 +11,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.db import IntegrityError
 from django.utils.datastructures import MultiValueDictKeyError
-import re
 from django.contrib.auth.decorators import user_passes_test
 
 

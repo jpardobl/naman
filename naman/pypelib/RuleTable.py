@@ -1,11 +1,14 @@
-import os
-import sys
-import time
-import exceptions
 import copy
-import logging
-from threading import Thread, Lock
+from threading import Lock
 import uuid
+
+from naman.pypelib.parsing import ParseEngine
+
+from naman.pypelib.persistence import PersistenceEngine
+from naman.pypelib.resolver import Resolver
+
+from naman.pypelib.utils import Logger
+
 
 try:
    import cPickle as pickle
@@ -19,12 +22,8 @@ except:
 	PolicyEngine RuleTable class
 	Encapsulates logic of a simple Rule Table
 '''
-from pypelib.resolver.Resolver import Resolver
-from pypelib.Rule import Rule,TerminalMatch
-from pypelib.parsing.ParseEngine import ParseEngine
-from pypelib.persistence.PersistenceEngine import PersistenceEngine
-from pypelib.utils.Logger import Logger
-from pypelib.utils.Exceptions import *
+from naman.pypelib.Rule import TerminalMatch
+from naman.pypelib.utils.Exceptions import *
 
 class RuleEntry():
 	rule = None
