@@ -1,6 +1,6 @@
 import exceptions
-from naman.pypelib import Condition
-from naman.pypelib.utils import Logger
+from naman.core.pypelib import Condition
+from naman.core.pypelib.utils import Logger
 
 '''
         @author: msune,lbergesio,omoya,CarolinaFernandez
@@ -68,7 +68,7 @@ class Rule():
 	
 	#Constructor
 	def __init__(self,condition,description,errorMsg,ruleType=POSITIVE_TERMINAL,action=None,uuid=None):
-		if not isinstance(condition,Condition):
+		if not isinstance(condition, Condition):
 			raise Exception("Object must be an instance of Condition")
 		if ruleType not in self._types:
 			raise Exception("Unknown rule type")

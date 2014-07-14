@@ -2,12 +2,11 @@ import copy
 from threading import Lock
 import uuid
 
-from naman.pypelib.parsing import ParseEngine
+from naman.core.pypelib.persistence import PersistenceEngine
 
-from naman.pypelib.persistence import PersistenceEngine
-from naman.pypelib.resolver import Resolver
-
-from naman.pypelib.utils import Logger
+from naman.core.pypelib.resolver import Resolver
+from naman.core.pypelib.utils import Logger
+from naman.core.pypelib.parsing import ParseEngine
 
 
 try:
@@ -22,8 +21,8 @@ except:
 	PolicyEngine RuleTable class
 	Encapsulates logic of a simple Rule Table
 '''
-from naman.pypelib.Rule import TerminalMatch
-from naman.pypelib.utils.Exceptions import *
+from naman.core.pypelib.Rule import TerminalMatch
+from naman.core.pypelib.utils.Exceptions import *
 
 class RuleEntry():
 	rule = None

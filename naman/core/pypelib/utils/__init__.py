@@ -4,7 +4,7 @@ import logging
         @author: msune
         @organization: i2CAT, OFELIA FP7
 
-       	Simple Logger wrapper 
+       	Simple Logger wrapper
 '''
 
 logging.basicConfig(format='%(asctime)s [%(filename)s:%(lineno)d] %(levelname)s: %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', level=logging.INFO)

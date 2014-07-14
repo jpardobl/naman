@@ -2,7 +2,7 @@ from naman.core.models import Iface, ConflictingIP
 from forms import IfaceForm, IfaceShortForm, IfaceByMachineForm
 from django.shortcuts import render_to_response, get_object_or_404, redirect, render
 from django.template import RequestContext
-from naman.tools.views import paginator
+from naman.core.tools.views import paginator
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseServerError

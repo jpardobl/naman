@@ -5,17 +5,19 @@
 	Django backend driver
 	Implementes django model-based backend
 '''
-from .naman.pypelib.persistence.backends.django.RuleModel import PolicyRuleModel
-from .naman.pypelib.persistence.backends.django.RuleTableModel import PolicyRuleTableModel
-from naman.pypelib.RuleTable import*
-from naman.pypelib.resolver import Resolver
-from naman.pypelib.utils import Logger
+from .naman.core.pypelib.persistence.backends.django.RuleModel import PolicyRuleModel
+from .naman.core.pypelib.persistence.backends.django.RuleTableModel import PolicyRuleTableModel
+from naman.core.pypelib.RuleTable import*
+from naman.core.pypelib.resolver import Resolver
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import MultipleObjectsReturned
-from naman.pypelib.utils.Exceptions import *
+from naman.core.pypelib.utils.Exceptions import *
 
 
 #XXX: Django is required to run this driver
+from naman.core.pypelib.utils import Logger
+
+
 class Django():
 
 	logger = Logger.getLogger()

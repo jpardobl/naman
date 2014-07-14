@@ -12,8 +12,10 @@ from django.db.models.signals import post_save
 
 
 
+
+
 # Get an instance of a logger
-from naman.pypelib import RuleTable
+from naman.core.pypelib import RuleTable
 
 logger = logging.getLogger(__name__)
 
@@ -367,7 +369,7 @@ class Machine(models.Model):
         return u"%s%s" % (self.hostname, self.dns_zone)
 
     def __unicode__(self, ):
-        return u"%s" % self.fqdn
+        return u"%s" % self.fqdn if not self.dns_zone is None else self.hostname
 
     def has_iface_on_vlan(self, vlan):
         return self.interfaces.filter(vlan=vlan).exists()
@@ -396,7 +398,7 @@ class IfaceManager(models.Manager):
             #print "no hay coincidencia"
             return None
         try:
-            #print "Se ha encontrado: %s" % m.group(2)
+            print "Se ha encontrado: %s" % m.group(2)
             queriable = {
                 "name": self.filter(name__iregex=m.group(2)),
                 "vlan": self.filter(vlan__name__iregex=m.group(2)),
@@ -442,7 +444,9 @@ class Iface(models.Model):
             })
 
     def __unicode__(self, ):
-        return u"%s" % self.ip
+        return u"%s" % self.ip if not self.ip is None else self.name
+
+
 
     @staticmethod
     def excluded_in_ranges(ip, vlan=None):
@@ -568,6 +572,9 @@ class VLanConfig(models.Model):
     vlans = models.ManyToManyField(VLan, blank=True, null=True)
     needs_backup = models.BooleanField(default=True)
     needs_management = models.BooleanField(default=False)
+    class Meta:
+        verbose_name = "Configuracion de vlanes para maquina"
+        verbose_name_plural = "Configuraciones de vlanes para maquinas"
 
     def __unicode__(self, ):
         out = u"VLan config for %s: [" % self.machine
@@ -597,7 +604,7 @@ class VLanConfig(models.Model):
             
 @receiver(post_save, sender=VLanConfig)
 def post_save_vlanconfig(sender, instance, **kwargs):
-    from naman.mappings import get_mappings
+    from naman.core.mappings import get_mappings
 
     if instance.machine.role is None:
         raise AttributeError("Machine %s has no role assigned" % instance.machine)

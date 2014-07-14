@@ -11,8 +11,8 @@ from pyparsing import nestedExpr
 	RegexParser class
 '''
 
-from naman.pypelib.Rule import *
-from naman.pypelib.Condition import *
+from naman.core.pypelib.Rule import *
+from naman.core.pypelib.Condition import *
 
 
 

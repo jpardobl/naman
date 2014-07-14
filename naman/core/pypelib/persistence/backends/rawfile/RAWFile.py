@@ -4,7 +4,7 @@ except:
    import pickle
 from threading import Lock
 
-from naman.pypelib.resolver.Resolver import Resolver
+from naman.core.pypelib.resolver.Resolver import Resolver
 
 
 '''
