@@ -183,7 +183,7 @@ class VLanManager(models.Manager):
 
 
 class VLan(models.Model):
-    name = models.CharField(max_length=6)
+    name = models.CharField(max_length=10)
     tag = models.IntegerField()
     ip = models.IPAddressField()
     gw = models.IPAddressField()
@@ -291,7 +291,7 @@ class Project(models.Model):
 
 
 class Machine(models.Model):
-    hostname = models.CharField(max_length=15, blank=True, null=True)
+    hostname = models.CharField(max_length=25, blank=True, null=True)
     dns_zone = models.ForeignKey(DNSZone, blank=True, null=True)
     environment = models.ForeignKey(Environment, blank=True, null=True)
     role = models.ForeignKey(Role, blank=True, null=True)
@@ -605,6 +605,8 @@ class VLanConfig(models.Model):
 @receiver(post_save, sender=VLanConfig)
 def post_save_vlanconfig(sender, instance, **kwargs):
     from naman.core.mappings import get_mappings
+    from naman.core.pypelib.RuleTable import RuleTable
+
 
     if instance.machine.role is None:
         raise AttributeError("Machine %s has no role assigned" % instance.machine)

@@ -7,12 +7,18 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from django.http import HttpResponse, HttpResponseServerError
+import logging
 
 
 @user_passes_test(lambda u: u.is_staff)
 def delete(request, id):
-    get_object_or_404(Machine, pk=id).delete()
-    return HttpResponse("OK")
+    try:
+        get_object_or_404(Machine, pk=id).delete()
+        return HttpResponse("OK")
+    except Exception as er:
+        logging.error("Exception in machine deletion: %s" % er)
+        return HttpResponseServerError("An error has ocurred.")
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -63,7 +69,7 @@ def edit(request, id=None):
             wrong = True
             messages.error(request, "Wrong fields!")
 
-        except Exception, ex:
+        except Exception as ex:
             print "exception: %s" % ex
             messages.error(request, ex)
     else:

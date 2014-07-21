@@ -1,5 +1,5 @@
 import exceptions
-from naman.core.pypelib import Condition
+from naman.core.pypelib.Condition import Condition
 from naman.core.pypelib.utils import Logger
 
 '''

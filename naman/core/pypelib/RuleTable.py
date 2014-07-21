@@ -4,9 +4,9 @@ import uuid
 
 from naman.core.pypelib.persistence import PersistenceEngine
 
-from naman.core.pypelib.resolver import Resolver
+from naman.core.pypelib.resolver.Resolver import Resolver
 from naman.core.pypelib.utils import Logger
-from naman.core.pypelib.parsing import ParseEngine
+from naman.core.pypelib.parsing.ParseEngine import ParseEngine
 
 
 try:
