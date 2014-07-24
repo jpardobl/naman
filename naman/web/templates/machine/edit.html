@@ -19,7 +19,7 @@
           <div class="panel-heading">
             <h6 class="panel-title">
               <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse1">
-                <trong>{{obj}}</trong>
+                <strong>{{obj}}</strong>
               </a>
             </h6>
           </div>
@@ -98,7 +98,7 @@
     load_dom_script_once("{%url 'iface_js'%}")
     load_dom_script_once("{%url 'vlanconfig_js'%}")
     {%if id != None%}
-        load_url("#iface_div", "{%url 'ifaces_by_machine' id%}")
+        load_url("#iface_div", "{%url 'ifaces_by_machine' id %}")
         show_niface_btn()
         toggle_nvlanc_btn()
     {%endif%}

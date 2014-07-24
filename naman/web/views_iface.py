@@ -90,9 +90,9 @@ def listado(request):
         except Exception:
             pass
 
-    if len(listado.object_list) == 1:
-        obj = listado.object_list[0]
-        return redirect(reverse("iface", args=[obj.pk, ]))
+#    if len(listado.object_list) == 1:
+#        obj = listado.object_list[0]
+#        return redirect(reverse("iface", args=[obj.pk, ]))
     return render_to_response(
         'iface/list.html',
         {"listado": listado},

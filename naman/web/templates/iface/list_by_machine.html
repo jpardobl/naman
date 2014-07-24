@@ -11,7 +11,7 @@
                 <span  class="glyphicon glyphicon-edit"></span>
             </a>
         </td>
-        <td><a href="{%url 'iface' iface.pk%}">{{iface.ip}}</a></td><td>{{iface.dhcp}}</td><td>{{iface.vlan}}</td><td>{{iface.mac}}</td>
+        <td><a href="{%url 'iface' iface.pk%}">{{iface.ip}}</a></td><td>{{iface.dhcp}}</td><td>{{iface.vlan}}</td><td> {%  if iface.comments != None %}{{iface.comments|truncatechars:15}}  {% endif %}</td><td> {% for s in iface.services.all %} <a href="{% url 'admin:core_service_change' s.id %}">{{s}}</a><br> {% endfor %}</td>
     </tr>
 {%endfor%}
 {%if iface_id == None%}

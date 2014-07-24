@@ -335,13 +335,16 @@ class Machine(models.Model):
 
     def initialize_dnszone(self):
 
-        if self.operating_system.code == "w":
-            self.dns_zone = DNSZone.objects.get(name=".iberia.ib")
-        else:
-            self.dns_zone = DNSZone.objects.get(name=".ib")
+        try:
+            if self.operating_system.code == "w":
+                self.dns_zone = DNSZone.objects.get(name=".iberia.ib")
+            else:
+                self.dns_zone = DNSZone.objects.get(name=".ib")
 
-        if self.environment.code == "lab":
-            self.dns_zone = DNSZone.objects.get(name=".lab")
+            if self.environment.code == "lab":
+                self.dns_zone = DNSZone.objects.get(name=".lab")
+        except AttributeError:
+            pass
 
     def save(self, *args, **kwargs):
         new = False
@@ -383,7 +386,7 @@ class Machine(models.Model):
 class Service(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
-    iface = models.ForeignKey("Iface")
+    iface = models.ForeignKey("Iface", related_name="services") #Esto permite referenciar los servicios de un iface desde un objeto Iface
 
     def __unicode__(self, ):
         return u"%s" % self.name
@@ -444,7 +447,7 @@ class Iface(models.Model):
             })
 
     def __unicode__(self, ):
-        return u"%s" % self.ip if not self.ip is None else self.name
+        return u"%s" % self.ip if not self.ip is None else self.name if self.name != ""  else "IFACE"
 
 
 
