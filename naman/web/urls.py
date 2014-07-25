@@ -6,6 +6,8 @@ urlpatterns = patterns("",
     url(r"^machine/(\d+)?/?", "naman.web.views_machine.edit", name="machine"),
     url(r"^machines", "naman.web.views_machine.listado", name="machines"),
 
+     url(r"^service/(\d+)?/?", "naman.web.views_service.edit", name="service"),
+
     #url(r"^service/(\d+)?/?", "naman.web.views_machine.edit", name="machine"),
 
 

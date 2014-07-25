@@ -1,4 +1,4 @@
-from naman.core.models import Machine, Iface, VLanConfig, ConflictingIP
+from naman.core.models import Machine, Iface, VLanConfig, ConflictingIP, Service
 from django.forms import ModelForm
 
 
@@ -105,6 +105,22 @@ class IfaceByMachineForm(ModelForm):
     class Meta:
         model = Iface
         fields = ("machines", "ip", "dhcp", "vlan", "mac", )
+
+class ServiceForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ServiceForm, self).__init__(*args, **kwargs)
+
+        for name, f in self.fields.items():
+            print name
+           # f.widget.attrs = {'required': 'true'}
+            f.widget.attrs['placeholder'] = "%s ..." % f.label
+            if f.widget.__class__.__name__ != "CheckboxInput":
+                f.widget.attrs["class"] = "form-control"
+
+    class Meta:
+        model = Service
+        fields = ('name', 'iface', 'description')
+
 
 
 class IfaceForm(ModelForm):
