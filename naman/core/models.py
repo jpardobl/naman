@@ -386,7 +386,7 @@ class Machine(models.Model):
 class Service(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
-    iface = models.ForeignKey("Iface", related_name="services") #Esto permite referenciar los servicios de un iface desde un objeto Iface
+    iface = models.ForeignKey("Iface", related_name="services", verbose_name='Ip') #Esto permite referenciar los servicios de un iface desde un objeto Iface
 
     def __unicode__(self, ):
         return u"%s" % self.name

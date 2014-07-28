@@ -6,7 +6,9 @@ urlpatterns = patterns("",
     url(r"^machine/(\d+)?/?", "naman.web.views_machine.edit", name="machine"),
     url(r"^machines", "naman.web.views_machine.listado", name="machines"),
 
-     url(r"^service/(\d+)?/?", "naman.web.views_service.edit", name="service"),
+    url(r"^service/delete/(\d+)?/?", "naman.web.views_service.delete", name="delete_service"),
+    url(r"^service/(\d+)?/?", "naman.web.views_service.edit", name="service"),
+    url(r"^services", "naman.web.views_service.listado", name="services"),
 
     #url(r"^service/(\d+)?/?", "naman.web.views_machine.edit", name="machine"),
 
@@ -27,6 +29,7 @@ urlpatterns = patterns("",
     url('^iface.js$', 'naman.web.views_js.iface', name='iface_js'),
     url('^machine.js$', 'naman.web.views_js.machine', name='machine_js'),
     url('^vlanconfig.js$', 'naman.web.views_js.vlanconfig', name='vlanconfig_js'),
+    url('^service.js$', 'naman.web.views_js.service', name='service_js'),
 
     url('^login/?$', 'django.contrib.auth.views.login', name='login'),
     url('^logout/', 'django.contrib.auth.views.logout', {'next_page':'/login?next=/'}, name='logout'),

@@ -104,7 +104,8 @@ class IfaceByMachineForm(ModelForm):
 
     class Meta:
         model = Iface
-        fields = ("machines", "ip", "dhcp", "vlan", "mac", )
+        fields = ("machines", "ip", "dhcp", "vlan", "comments" )
+
 
 class ServiceForm(ModelForm):
     def __init__(self, *args, **kwargs):

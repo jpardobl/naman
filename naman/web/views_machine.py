@@ -25,11 +25,12 @@ def delete(request, id):
 def listado(request):
     #TODO change from icontains to iregex
     if "query_machine" in request.GET and request.GET["query_machine"] != "":
+        qm = request.GET["query_machine"]
         query = Machine.objects.filter(
-            Q(hostname__icontains=request.GET["query_machine"]) |
-            Q(dns_zone__name__icontains=request.GET["query_machine"])|
-            Q(mtype__name__icontains=request.GET["query_machine"])|
-            Q(environment__code__icontains=request.GET["query_machine"])
+            Q(hostname__icontains=qm)|
+            Q(dns_zone__name__icontains=qm)|
+            Q(mtype__name__icontains=qm)|
+            Q(environment__code__icontains=qm)
             )
         print query.query
     else:
@@ -37,9 +38,9 @@ def listado(request):
 
     listado = paginator(query, request)
 
-    if len(listado.object_list) == 1:
-        obj = listado.object_list[0]
-        return redirect(reverse("machine", args=[obj.pk, ]))
+#    if len(listado.object_list) == 1:
+#        obj = listado.object_list[0]
+#        return redirect(reverse("machine", args=[obj.pk, ]))
     return render_to_response(
         'machine/list.html',
         {"listado": listado},

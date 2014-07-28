@@ -17,3 +17,7 @@ def conflicting_ip(request):
 
 def machine(request):
     return render(request, 'js/machine.js', content_type='application/javascript')
+
+
+def service(request):
+    return render(request, 'js/service.js', content_type='application/javascript')

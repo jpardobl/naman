@@ -50,4 +50,5 @@
 
 
     {%endblock%}
-{%block document_ready%}{%endblock%}
+{%block document_ready%}
+        load_dom_script_once("{%url 'service_js' %}"){%endblock%}
