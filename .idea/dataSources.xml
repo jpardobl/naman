@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" hash="2227735787">
+    <data-source source="LOCAL" name="Django default" uuid="3c64a23d-aa03-40c9-82df-5e3d98f48ebb">
+      <driver-ref>mysql</driver-ref>
+      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://172.21.200.132/ipam1</jdbc-url>
+      <user-name>monscale</user-name>
+      <user-password>dfc7dfc5dfc4dfd9dfc9dfcbdfc6dfcf</user-password>
+      <libraries />
+    </data-source>
+    <data-source source="LOCAL" name="Django redip" uuid="0426364e-7839-4db0-9ac6-d6687b5d16cc">
+      <driver-ref>mysql</driver-ref>
+      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://172.22.2.69/redip</jdbc-url>
+      <user-name>root</user-name>
+      <user-password>dfdddfd8dfcfdfcedfda</user-password>
+      <libraries />
+    </data-source>
+  </component>
+</project>
+
