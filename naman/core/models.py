@@ -183,7 +183,7 @@ class VLanManager(models.Manager):
 
 
 class VLan(models.Model):
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=20)
     tag = models.IntegerField()
     ip = models.IPAddressField()
     gw = models.IPAddressField()
