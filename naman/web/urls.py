@@ -2,6 +2,7 @@ from django.conf.urls import url, patterns, include
 
 
 urlpatterns = patterns("",
+
     url(r"^machine/delete/(\d+)?/?", "naman.web.views_machine.delete", name="delete_machine"),
     url(r"^machine/(\d+)?/?", "naman.web.views_machine.edit", name="machine"),
     url(r"^machines", "naman.web.views_machine.listado", name="machines"),
@@ -12,6 +13,7 @@ urlpatterns = patterns("",
 
     #url(r"^service/(\d+)?/?", "naman.web.views_machine.edit", name="machine"),
 
+    url(r"^vlan/free_ip/(\d+)?/?", "naman.web.views_vlan.get_free_ip_by_vlan", name="get_free_ip_by_vlan"),
 
     url(r"^iface/delete/(\d+)?/?", "naman.web.views_iface.delete", name="delete_iface"),
     #url(r"^iface_short/(\d+)?/?", "web.views_iface.edit_short", name="iface_short"),
@@ -19,6 +21,7 @@ urlpatterns = patterns("",
     url(r"^iface/(\d+)?/?", "naman.web.views_iface.edit", name="iface"),
     url(r"^ifaces_by_machine_json/(\d+)?/?(\d+)?", "naman.web.views_iface.list_by_machine_json", name="ifaces_by_machine_json"),
     url(r"^ifaces_by_machine/(\d+)?/?(\d+)?", "naman.web.views_iface.list_by_machine", name="ifaces_by_machine"),
+    url(r"^ifaces_free_by_vlan/(\d+)?/?", "naman.web.views_iface.free_ips_by_vlan", name="free_ips_by_vlan"),
     url(r"^ifaces", "naman.web.views_iface.listado", name="ifaces"),
 
     url(r"^conflictingip/(\d+)?/?", "naman.web.views_conflicting_ip.edit_modal", name="conflictingip_modal"),

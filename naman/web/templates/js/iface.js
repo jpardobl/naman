@@ -1,3 +1,11 @@
+function get_ip(vlan_id){
+  $.getJSON( "{%url 'get_free_ip_by_vlan' %}" + vlan_id, function( data ) {
+        var items = [];
+        $.each( data, function( key, val ) {
+            $("#id_ip").val(val)
+        });
+    })
+}
 function del_iface(id){
   send_url("{%url 'delete_iface' %}" + id, function(data){
     if(data == "OK") $("tr[i=" + id+"]").fadeOut()

@@ -23,6 +23,7 @@ def edit(request, id):
             form = VLanConfigForm(request.POST, instance=obj)
             try:
                 if form.is_valid():
+
                     obj = form.save(commit=False)
                     obj.save()
                     #ifaces = []

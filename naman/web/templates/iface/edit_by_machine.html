@@ -1,7 +1,13 @@
-<tr i="{{id}}" role="form"><td>
-        <a href="javascript:void(0)" onclick="save_iface({{id}})">
+<tr i="{{id}}" role="form">
+    <td>
+        <a title="Save" href="javascript:void(0)" onclick="save_iface({{id}})">
             <span  class="glyphicon glyphicon-floppy-save"></span>
-        </a></td>
+        </a>
+        <a title="Look for free IP" href="javascript:void(0)" onclick="get_ip({{obj.vlan.id}})">
+            <span  class="glyphicon glyphicon-forward"></span>
+        </a>
+</div>
+    </td>
 {% for field in form %}
     {%if field.is_hidden%}
         {{field}}

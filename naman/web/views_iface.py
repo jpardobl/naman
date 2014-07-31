@@ -1,4 +1,4 @@
-from naman.core.models import Iface, ConflictingIP
+from naman.core.models import Iface, ConflictingIP, VLan
 from forms import IfaceForm, IfaceShortForm, IfaceByMachineForm
 from django.shortcuts import render_to_response, get_object_or_404, redirect, render
 from django.template import RequestContext
@@ -12,6 +12,17 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.utils.datastructures import MultiValueDictKeyError
 from django.contrib.auth.decorators import user_passes_test
+
+
+@user_passes_test(lambda u: u.is_staff)
+def free_ips_by_vlan(request, vlan_id):
+    vlan = get_object_or_404(VLan, id=vlan_id)
+    return render(
+        request,
+        'iface/list.json',
+        {"ifaces": vlan.free_ips},
+        content_type='application/json')
+
 
 
 @user_passes_test(lambda u: u.is_staff)

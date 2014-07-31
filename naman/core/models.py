@@ -10,10 +10,6 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
-
-
-
-
 # Get an instance of a logger
 from naman.core.pypelib import RuleTable
 
@@ -230,10 +226,31 @@ class VLan(models.Model):
             raise ValueError(
                 "VLan.network: Can't calculate vlan network due to vlan %s misconfiguration" % self.name)
 
-
     @property
     def has_free_ip(self, ):
         return True if self.get_ip() else False
+
+    @property
+    def free_ips(self, ):
+        eranges = self.excluded_ranges
+        ips = []
+        for ip in self.network.iterhosts():
+            print "tryuing with: %s" % ip
+            try:
+                for erange in eranges.all():
+                    if erange.in_range(ip):
+                        raise ExcludedIPRange.ExcludedIPError
+                #print "query: %s" % ConflictingIP.objects.filter(ip=ip).query
+                if ConflictingIP.objects.filter(ip=str(ip)).exists():
+                    continue
+            except ExcludedIPRange.ExcludedIPError:
+                continue
+            try:
+                Iface.objects.get(ip=str(ip))
+            except ObjectDoesNotExist:
+                print "metemos esta: %s" % ip
+                ips.append("\"%s\"" % ip)
+        return ips
 
     def get_ip(self, ):
         """ searches and returns a free IP, respects excluded ranges and conflicting ips"""
@@ -489,8 +506,10 @@ class Iface(models.Model):
                 self.dhcp = self.vlan.dhcp               
                 
                 self.ip = self.vlan.get_ip() if self.ip in (None, "") and not self.dhcp else self.ip
+
                 #If IP comes from user, check its valid for vlan
-                if not self.dhcp and not self.vlan.is_ip_valid(self.ip): raise AttributeError("Ip %s is not valid for vlan %s" % (self.ip, self.vlan))
+                if not self.dhcp and not self.vlan.is_ip_valid(self.ip):
+                    raise AttributeError("Ip %s is not valid for vlan %s" % (self.ip, self.vlan))
                                     
                 self.gw = self.vlan.gw
                 
@@ -544,6 +563,7 @@ class Rule(models.Model):
     terminal = models.BooleanField(default=False)
     
     def __unicode__(self, ):
+        return self.to_pypelib()
         return "[%s] conditionals: %s; action: %s" % (
             self.active,
 

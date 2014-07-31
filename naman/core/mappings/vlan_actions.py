@@ -69,7 +69,7 @@ def assign_service_vlan_based_on_project(machine):
     
 def assign_general_purpose_service_vlan(machine):
     print("General purpose service vlan")
-    for vlan in machine.environment.service_vlans.all().order_by('name'):
+    for vlan in machine.environment.service_vlans.all().order_by('-name'):
         #print "trying service vlan with: %s" % vlan
         try:
             machine.get_vlanconfig().append_vlan(vlan)
@@ -85,5 +85,4 @@ mappings = [
     assign_dmz_based_on_project,
     assign_service_vlan_based_on_project,
     assign_general_purpose_service_vlan,
-   
     ]
