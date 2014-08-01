@@ -33,7 +33,7 @@ def assign_backup_vlan(machine):
 
 def assign_management_vlan(machine):
     print("Entering management vlan")
-    man_vlans = VLan.objects.filter(management_purpose=True)
+    man_vlans = VLan.objects.filter(management_purpose=True).order_by("name")
     if man_vlans.count() == 0:
         raise ImproperlyConfigured("Missing management vlans")
 
