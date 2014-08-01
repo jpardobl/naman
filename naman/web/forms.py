@@ -101,10 +101,12 @@ class IfaceByMachineForm(ModelForm):
             f.widget.attrs['placeholder'] = "%s ..." % f.label
             if f.widget.__class__.__name__ != "CheckboxInput":
                 f.widget.attrs["class"] = "form-control"
+        self.fields["vlan"].widget.attrs["onchange"] = "fill_free_ip(this.options[this.selectedIndex].value)"
+        self.fields["dhcp"].widget.attrs["onchange"] = "if(this.checked == true) $('#id_ip').val('')"
 
     class Meta:
         model = Iface
-        fields = ("machines", "ip", "dhcp", "vlan", "comments" )
+        fields = ("machines", "ip", "dhcp", "virtual", "vlan", "comments" )
 
 
 class ServiceForm(ModelForm):

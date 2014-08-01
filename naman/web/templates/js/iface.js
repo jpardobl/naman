@@ -1,9 +1,20 @@
+function cancel_iface_edition(machine_id){
+
+    load_url("#iface_div", "{%url 'ifaces_by_machine' %}" + machine_id)
+
+}
+function fill_free_ip(vlan){
+
+    $("#link_free_ip").attr("onclick", "get_ip("+vlan+")")
+}
+
 function get_ip(vlan_id){
   $.getJSON( "{%url 'get_free_ip_by_vlan' %}" + vlan_id, function( data ) {
         var items = [];
         $.each( data, function( key, val ) {
             $("#id_ip").val(val)
         });
+        $("#id_dhcp").attr("checked", false)
     })
 }
 function del_iface(id){

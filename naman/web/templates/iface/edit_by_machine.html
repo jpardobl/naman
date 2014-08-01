@@ -3,8 +3,11 @@
         <a title="Save" href="javascript:void(0)" onclick="save_iface({{id}})">
             <span  class="glyphicon glyphicon-floppy-save"></span>
         </a>
-        <a title="Look for free IP" href="javascript:void(0)" onclick="get_ip({{obj.vlan.id}})">
+        <a id="link_free_ip" title="Look for free IP" href="javascript:void(0)" onclick="get_ip({{obj.vlan.id}})">
             <span  class="glyphicon glyphicon-forward"></span>
+        </a>
+        <a id="link_free_ip" title="Cancel edition" href="javascript:void(0)" onclick="cancel_iface_edition($('#obj_id').attr('i'))">
+            <span  class="glyphicon glyphicon-arrow-left"></span>
         </a>
 </div>
     </td>
