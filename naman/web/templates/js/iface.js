@@ -1,7 +1,8 @@
 function cancel_iface_edition(machine_id){
 
     load_url("#iface_div", "{%url 'ifaces_by_machine' %}" + machine_id)
-
+    toggle_nvlanc_btn()
+    show_niface_btn()
 }
 function fill_free_ip(vlan){
 
@@ -9,6 +10,7 @@ function fill_free_ip(vlan){
 }
 
 function get_ip(vlan_id){
+
   $.getJSON( "{%url 'get_free_ip_by_vlan' %}" + vlan_id, function( data ) {
         var items = [];
         $.each( data, function( key, val ) {
@@ -16,6 +18,7 @@ function get_ip(vlan_id){
         });
         $("#id_dhcp").attr("checked", false)
     })
+
 }
 function del_iface(id){
   send_url("{%url 'delete_iface' %}" + id, function(data){
@@ -61,6 +64,8 @@ function save_iface(id) {
       "ip": $("#id_ip").val(),
       "mac": $("#id_mac").val(),
       "dhcp": $("#id_dhcp").is(":checked"),
+      "virtual": ($("#id_virtual:checked").length == 1),
+      "comments": $("#id_comments").val(),
       "machines": machine
     },
     beforeSend: function(){progress(30)},

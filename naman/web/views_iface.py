@@ -125,8 +125,9 @@ def edit_by_machine(request, id):
         try:
             if form.is_valid():
                 machine = request.POST["machines"]
+
                 obj = form.save(commit=False)
-                obj.save()
+                obj.save(manual=True)
                 try:
                     obj.machines.add(machine)
                 except IntegrityError:

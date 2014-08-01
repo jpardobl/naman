@@ -497,10 +497,17 @@ class Iface(models.Model):
 
         return None
 
-    def save(self, *args, **kwargs):
+    def save(self, manual=None):
         new = False
+
+
         with transaction.commit_on_success():
-            if self.pk is None:
+            """
+            El parametro 'manual' sirve para que toda la asignacion de configuraciones automaticas
+            que representa el siguiente 'if' solo se ejecute desde el API, la vista views_iface.edit_by_machine
+            pasa el parametro manual=True para que no se ejecute el algoritmo que si necesita el API
+            """
+            if self.pk is None and not manual:
                 new = True
                 
                 self.dhcp = self.vlan.dhcp               
@@ -512,11 +519,10 @@ class Iface(models.Model):
                     raise AttributeError("Ip %s is not valid for vlan %s" % (self.ip, self.vlan))
                                     
                 self.gw = self.vlan.gw
-                
 
             self.mask = self.vlan.mask
 
-            super(Iface, self).save(*args, **kwargs)
+            super(Iface, self).save()
 
             if new:
                 logger.info("New Iface created: %s" % self)

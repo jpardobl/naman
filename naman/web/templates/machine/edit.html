@@ -81,7 +81,7 @@
         var machine_id=$("#obj_id").attr("i")
         $.ajax({
           url: "{%url 'ifaces_by_machine_json'%}" + machine_id,
-          success: function(data){
+          success: function(data){load_dom_script_once("{%url 'conflicting_ip_js'%}")
             if( data.length == 0 ){
                 if($("#nvconfig_btn").length == 0){
                 $("#btns_div").append("<button type='button' onclick='show_vconfig_form()' id='nvconfig_btn' class='btn btn-primary'>New vlan config</button>")}
